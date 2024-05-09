@@ -3,18 +3,15 @@ import { GameRenderer } from './game-renderer';
 
 export class Tick {
   private game: Game | null = null;
-  private gameRenderer: GameRenderer;
 
-  constructor(canvas: HTMLCanvasElement) {
-    this.gameRenderer = new GameRenderer(canvas);
-  }
+  constructor(private readonly gameRenderer: GameRenderer) {}
 
   public setGame(game: Game): void {
     this.game = game;
   }
 
-  public run(): void {
-    let lastTimestampMs = 0;
+  public run(startTimestamp: number): void {
+    let lastTimestampMs = startTimestamp;
 
     const tick = (currentTimestamp: number) => {
       const diffMs = currentTimestamp - lastTimestampMs;

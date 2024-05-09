@@ -2,8 +2,6 @@ import { BlasterProjectile } from './projectile/blaster-projectile';
 import { Projectile } from './projectile/projectile';
 
 export class Game {
-  public readonly mapLength = 500;
-
   private _allyProjectiles: BlasterProjectile[] = [];
   private _enemyProjectiles: BlasterProjectile[] = [];
 
