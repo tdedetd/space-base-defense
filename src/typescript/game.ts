@@ -21,7 +21,7 @@ export class Game {
     });
   }
 
-  public moveAllProjectiles(ms: number): void {
+  public moveProjectiles(ms: number): void {
     Game.moveProjectilesGroup(this._allyProjectiles, ms);
     Game.moveProjectilesGroup(this._enemyProjectiles, ms);
   }

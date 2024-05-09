@@ -7,8 +7,8 @@ import { ProjectileOptions } from '../models/projectile-options.interface';
 export abstract class Projectile {
   protected _color: string;
   protected _direction: ProjectileDirection;
+  protected _origin: Point;
   protected _speed: number;
-  protected _targetPosition: Point;
   protected _position: PointPolar;
 
   public get color(): string {
@@ -19,12 +19,12 @@ export abstract class Projectile {
     return this._direction;
   }
 
-  public get speed(): number {
-    return this._speed;
+  public get origin(): Point {
+    return this._origin;
   }
 
-  public get targetPosition(): Point {
-    return this._targetPosition;
+  public get speed(): number {
+    return this._speed;
   }
 
   public get position(): PointPolar {
@@ -34,14 +34,14 @@ export abstract class Projectile {
   constructor({
     color,
     direction,
+    origin,
     position,
     speed,
-    targetPosition,
   }: ProjectileOptions) {
     this._color = color ?? '#fff';
     this._direction = direction ?? 'fromCenter';
+    this._origin = origin;
     this._speed = speed;
-    this._targetPosition = targetPosition;
     this._position = position;
   }
 
@@ -54,10 +54,10 @@ export abstract class Projectile {
 
     switch (this._direction) {
       case 'fromCenter':
-        this._position.length += distance;
+        this._position.radius += distance;
         break;
       case 'toCenter':
-        this._position.length -= distance;
+        this._position.radius -= distance;
         break;
     }
   }

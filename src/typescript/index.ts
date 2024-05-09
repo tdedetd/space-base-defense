@@ -1,3 +1,4 @@
+import { Game } from './game';
 import { Tick } from './tick';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -6,5 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     throw new Error('game-canvas element not found');
   }
 
-  new Tick(gameCanvas).run();
+  const tick = new Tick(gameCanvas);
+  tick.run();
+  tick.setGame(new Game());
 });

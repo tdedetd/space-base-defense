@@ -9,6 +9,10 @@ export class Tick {
     this.gameRenderer = new GameRenderer(canvas);
   }
 
+  public setGame(game: Game): void {
+    this.game = game;
+  }
+
   public run(): void {
     let lastTimestampMs = 0;
 
@@ -17,7 +21,7 @@ export class Tick {
       lastTimestampMs = currentTimestamp;
 
       if (this.game) {
-        this.game.moveAllProjectiles(diffMs);
+        this.game.moveProjectiles(diffMs);
         this.gameRenderer.render(this.game);
       }
 

@@ -5,7 +5,7 @@ import { ProjectileDirection } from './projectile-direction.type';
 export interface ProjectileOptions {
   color?: string;
   direction?: ProjectileDirection;
+  origin: Point;
   speed: number;
-  targetPosition: Point;
   position: PointPolar;
 }
