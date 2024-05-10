@@ -16,28 +16,25 @@ document.addEventListener('DOMContentLoaded', (event) => {
   const game = new Game();
   const gameRenderer = new GameRenderer(gameCanvas);
 
-  updateSceneMeasuresOnResize(gameRenderer);
-  rotateCannonOnMousemove(container, gameRenderer, game);
-  fireOnClick(container, game);
+  containerOnClick(container, game);
+  containerOnMousemove(container, gameRenderer, game);
+  windowOnKeydown(gameRenderer, game);
+  windowOnResize(gameRenderer);
+
+  gameRenderer.updateSceneMeasures();
 
   const tick = new Tick(gameRenderer);
   tick.run(event.timeStamp);
   tick.setGame(game);
 });
 
-function fireOnClick(container: HTMLDivElement, game: Game): void {
+function containerOnClick(container: HTMLDivElement, game: Game): void {
   container.addEventListener('click', () => {
     game.fire();
   });
-
-  window.addEventListener('keydown', (event) => {
-    if (['f', 'а'].includes(event.key.toLowerCase())) {
-      game.fire();
-    }
-  });
 }
 
-function rotateCannonOnMousemove(
+function containerOnMousemove(
   container: HTMLDivElement,
   gameRenderer: GameRenderer,
   game: Game,
@@ -47,9 +44,20 @@ function rotateCannonOnMousemove(
   });
 }
 
-function updateSceneMeasuresOnResize(gameRenderer: GameRenderer): void {
+function windowOnKeydown(gameRenderer: GameRenderer, game: Game): void {
+  window.addEventListener('keydown', (event) => {
+    if (['f', 'а'].includes(event.key.toLowerCase())) {
+      game.fire();
+    }
+
+    if (['d', 'в'].includes(event.key.toLowerCase())) {
+      gameRenderer.toggleDisplayDebug();
+    }
+  });
+}
+
+function windowOnResize(gameRenderer: GameRenderer): void {
   window.addEventListener('resize', () => {
     gameRenderer.updateSceneMeasures();
   });
-  gameRenderer.updateSceneMeasures();
 }

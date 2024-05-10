@@ -1,11 +1,13 @@
 import { Cannon } from './cannon/cannon';
+import { Debug } from './debug';
 import { Game } from './game';
 import { Point } from './models/geometry/point.intarface';
 import { BlasterProjectile } from './projectile/blaster-projectile';
 import { CoordinateSystemConverter } from './utils/coordinate-system-converter.class';
 
 export class GameRenderer {
-  private readonly debug = true;
+  private displayDebug = false;
+  private debug: Debug;
 
   private readonly aspectRatio = 3 / 4;
   private readonly ctx: CanvasRenderingContext2D;
@@ -23,6 +25,34 @@ export class GameRenderer {
       throw new Error('Cannot get context 2d');
     }
     this.ctx = ctx;
+    this.debug = new Debug(ctx);
+  }
+
+  public render(game: Game): void {
+    this.clearScene();
+
+    this.renderBlasterProjectiles(game.allyProjectiles);
+    this.renderBlasterProjectiles(game.enemyProjectiles);
+    this.renderCannon(game.cannon);
+
+    if (this.displayDebug) {
+      this.debug.render(
+        game,
+        this.sceneWidthPx,
+        this.sceneHeightPx,
+        this.sceneOriginPx,
+      );
+    }
+  }
+
+  public rotateCannon(xPx: number, yPx: number, game: Game): void {
+    const scenePoint = this.convertToScenePoint({ x: xPx, y: yPx });
+    const angle = CoordinateSystemConverter.toPolar(scenePoint, game.cannon.position);
+    game.setCannonRotation(angle.radians);
+  }
+
+  public toggleDisplayDebug(): void {
+    this.displayDebug = !this.displayDebug;
   }
 
   public updateSceneMeasures(): void {
@@ -47,24 +77,6 @@ export class GameRenderer {
     }
 
     this.sceneYStartPx = this.sceneOriginPx.y + this.sceneHeightPx;
-  }
-
-  public render(game: Game): void {
-    this.clearScene();
-
-    this.renderBlasterProjectiles(game.allyProjectiles);
-    this.renderBlasterProjectiles(game.enemyProjectiles);
-    this.renderCannon(game.cannon);
-
-    if (this.debug) {
-      this.renderSceneBounds();
-    }
-  }
-
-  public rotateCannon(xPx: number, yPx: number, game: Game): void {
-    const scenePoint = this.convertToScenePoint({ x: xPx, y: yPx });
-    const angle = CoordinateSystemConverter.toPolar(scenePoint, game.cannon.position);
-    game.setCannonRotation(angle.radians);
   }
 
   private clearScene(): void {
@@ -123,10 +135,5 @@ export class GameRenderer {
     this.ctx.moveTo(point1Px.x, point1Px.y);
     this.ctx.lineTo(point2Px.x, point2Px.y);
     this.ctx.stroke();
-  }
-
-  private renderSceneBounds(): void {
-    this.ctx.strokeStyle = 'white';
-    this.ctx.strokeRect(this.sceneOriginPx.x, this.sceneOriginPx.y, this.sceneWidthPx, this.sceneHeightPx);
   }
 }

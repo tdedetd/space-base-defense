@@ -29,16 +29,16 @@ export class Game {
     return this._cannon;
   }
 
-  public fire(): void {
-    this._allyProjectiles.push(
-      this._cannon.fire()
-    );
-  }
-
   private static moveProjectilesGroup(projectiles: Projectile[], ms: number): void {
     projectiles.forEach(projectile => {
       projectile.move(ms);
     });
+  }
+
+  public fire(): void {
+    this._allyProjectiles.push(
+      this._cannon.fire()
+    );
   }
 
   public moveProjectiles(ms: number): void {
