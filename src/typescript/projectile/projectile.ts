@@ -1,8 +1,8 @@
 import { PointPolar } from '../models/geometry/point-polar.interface';
 import { Point } from '../models/geometry/point.intarface';
 import { Rectangle } from '../models/geometry/rectangle.interface';
-import { ProjectileDirection } from '../models/projectile-direction.type';
-import { ProjectileOptions } from '../models/projectile-options.interface';
+import { ProjectileDirection } from './models/projectile-direction.type';
+import { ProjectileOptions } from './models/projectile-options.interface';
 
 export abstract class Projectile {
   protected _color: string;

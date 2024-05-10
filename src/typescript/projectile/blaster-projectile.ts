@@ -1,5 +1,5 @@
 import { Rectangle } from '../models/geometry/rectangle.interface';
-import { ProjectileOptions } from '../models/projectile-options.interface';
+import { BlasterProjectileOptions } from './models/blaster-projectile-options.interface';
 import { Projectile } from './projectile';
 
 export class BlasterProjectile extends Projectile {
@@ -9,7 +9,7 @@ export class BlasterProjectile extends Projectile {
     return this._length;
   }
 
-  constructor(options: ProjectileOptions & { length: number }) {
+  constructor(options: BlasterProjectileOptions) {
     super(options);
     this._length = options.length;
   }

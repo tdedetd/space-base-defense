@@ -1,3 +1,4 @@
+import { Cannon } from './cannon/cannon';
 import { Game } from './game';
 import { Point } from './models/geometry/point.intarface';
 import { BlasterProjectile } from './projectile/blaster-projectile';
@@ -50,16 +51,38 @@ export class GameRenderer {
 
   public render(game: Game): void {
     this.clearScene();
+
     this.renderBlasterProjectiles(game.allyProjectiles);
     this.renderBlasterProjectiles(game.enemyProjectiles);
+    this.renderCannon(game.cannon);
 
     if (this.debug) {
       this.renderSceneBounds();
     }
   }
 
+  public rotateCannon(xPx: number, yPx: number, game: Game): void {
+    const scenePoint = this.convertToScenePoint({ x: xPx, y: yPx });
+    const angle = CoordinateSystemConverter.toPolar(scenePoint, game.cannon.position);
+    game.setCannonRotation(angle.radians);
+  }
+
   private clearScene(): void {
     this.ctx.clearRect(0, 0, this.container.width, this.container.height);
+  }
+
+  private convertToPx(scenePoint: Point): Point {
+    return {
+      x: this.sceneOriginPx.x + (scenePoint.x / this.sceneWidth * this.sceneWidthPx),
+      y: this.sceneYStartPx - (scenePoint.y / this.sceneHeight * this.sceneHeightPx),
+    };
+  }
+
+  private convertToScenePoint(pointPx: Point): Point {
+    return {
+      x: (pointPx.x - this.sceneOriginPx.x) / this.sceneWidthPx * this.sceneWidth,
+      y: (this.sceneYStartPx - pointPx.y) / this.sceneHeightPx * this.sceneHeight,
+    };
   }
 
   private renderBlasterProjectiles(projectiles: BlasterProjectile[]): void {
@@ -73,19 +96,33 @@ export class GameRenderer {
         radians: projectile.position.radians,
         radius: point2Radius >= 0 ? point2Radius : 0,
       }, projectile.origin);
+      const point1Px = this.convertToPx(point1);
+      const point2Px = this.convertToPx(point2);
 
       this.ctx.strokeStyle = projectile.color;
       this.ctx.beginPath();
-      this.ctx.moveTo(
-        this.sceneOriginPx.x + (point1.x / this.sceneWidth * this.sceneWidthPx),
-        this.sceneYStartPx - (point1.y / this.sceneHeight * this.sceneHeightPx),
-      );
-      this.ctx.lineTo(
-        this.sceneOriginPx.x + (point2.x / this.sceneWidth * this.sceneWidthPx),
-        this.sceneYStartPx - (point2.y / this.sceneHeight * this.sceneHeightPx),
-      );
+      this.ctx.moveTo(point1Px.x, point1Px.y);
+      this.ctx.lineTo(point2Px.x, point2Px.y);
       this.ctx.stroke();
     });
+  }
+
+  private renderCannon(cannon: Cannon): void {
+    const point2 = CoordinateSystemConverter.toCartesian(
+      {
+        radians: cannon.rotationRadians,
+        radius: cannon.barrelLength,
+      },
+      cannon.position
+    );
+    const point1Px = this.convertToPx(cannon.position);
+    const point2Px = this.convertToPx(point2);
+
+    this.ctx.strokeStyle = 'white';
+    this.ctx.beginPath();
+    this.ctx.moveTo(point1Px.x, point1Px.y);
+    this.ctx.lineTo(point2Px.x, point2Px.y);
+    this.ctx.stroke();
   }
 
   private renderSceneBounds(): void {
