@@ -1,6 +1,6 @@
-import { Point } from './point.intarface';
-
 export interface Rectangle {
-  topLeft: Point;
-  rightDown: Point;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
 }

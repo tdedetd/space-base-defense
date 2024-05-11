@@ -1,13 +1,10 @@
-import { Game } from './game';
 import { GameRenderer } from './game-renderer';
 
 export class Tick {
-  private game: Game | null = null;
+  private gameRenderer: GameRenderer | null = null;
 
-  constructor(private readonly gameRenderer: GameRenderer) {}
-
-  public setGame(game: Game): void {
-    this.game = game;
+  public setGameRenderer(gameRenderer: GameRenderer): void {
+    this.gameRenderer = gameRenderer;
   }
 
   public run(startTimestamp: number): void {
@@ -17,9 +14,9 @@ export class Tick {
       const diffMs = currentTimestamp - lastTimestampMs;
       lastTimestampMs = currentTimestamp;
 
-      if (this.game) {
-        this.game.moveProjectiles(diffMs);
-        this.gameRenderer.render(this.game);
+      if (this.gameRenderer) {
+        this.gameRenderer.game.moveProjectiles(diffMs);
+        this.gameRenderer.render();
       }
 
       requestAnimationFrame(tick);

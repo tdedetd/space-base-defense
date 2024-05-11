@@ -2,12 +2,15 @@ import { Cannon } from './cannon/cannon';
 import { Debug } from './debug';
 import { Game } from './game';
 import { Point } from './models/geometry/point.intarface';
+import { ProjectileDespawner } from './projectile-despawner';
 import { BlasterProjectile } from './projectile/blaster-projectile';
 import { CoordinateSystemConverter } from './utils/coordinate-system-converter.class';
 
 export class GameRenderer {
-  private displayDebug = false;
-  private debug: Debug;
+  private displayDebug = true;
+  private readonly debug: Debug;
+  private readonly despawner: ProjectileDespawner;
+  private readonly _game: Game;
 
   private readonly aspectRatio = 3 / 4;
   private readonly ctx: CanvasRenderingContext2D;
@@ -19,25 +22,36 @@ export class GameRenderer {
   private sceneOriginPx: Point = { x: 0, y: 0 };
   private sceneYStartPx: number = 0;
 
-  constructor(private readonly container: HTMLCanvasElement) {
+  public get game(): Game {
+    return this._game;
+  }
+
+  constructor(
+    private readonly container: HTMLCanvasElement,
+    game: Game
+  ) {
     const ctx = this.container.getContext('2d');
     if (!ctx) {
       throw new Error('Cannot get context 2d');
     }
     this.ctx = ctx;
+    this._game = game;
     this.debug = new Debug(ctx);
+
+    this.despawner = new ProjectileDespawner(this._game);
+    this.despawner.run();
   }
 
-  public render(game: Game): void {
+  public render(): void {
     this.clearScene();
 
-    this.renderBlasterProjectiles(game.allyProjectiles);
-    this.renderBlasterProjectiles(game.enemyProjectiles);
-    this.renderCannon(game.cannon);
+    this.renderBlasterProjectiles(this._game.allyProjectiles);
+    this.renderBlasterProjectiles(this._game.enemyProjectiles);
+    this.renderCannon(this._game.cannon);
 
     if (this.displayDebug) {
       this.debug.render(
-        game,
+        this._game,
         this.sceneWidthPx,
         this.sceneHeightPx,
         this.sceneOriginPx,
@@ -77,6 +91,14 @@ export class GameRenderer {
     }
 
     this.sceneYStartPx = this.sceneOriginPx.y + this.sceneHeightPx;
+    const x = -this.sceneOriginPx.x * (this.sceneWidth / this.sceneWidthPx);
+    const y = -this.sceneOriginPx.y * (this.sceneHeight / this.sceneHeightPx);
+    this.despawner.setBorders({
+      x,
+      y,
+      width: this.sceneWidth + (-x * 2),
+      height: this.sceneHeight + (-y * 2),
+    });
   }
 
   private clearScene(): void {
@@ -99,17 +121,9 @@ export class GameRenderer {
 
   private renderBlasterProjectiles(projectiles: BlasterProjectile[]): void {
     projectiles.forEach((projectile) => {
-      const point1 = CoordinateSystemConverter.toCartesian(projectile.position, projectile.origin);
-
-      const point2Radius = projectile.position.radius + (
-        projectile.direction === 'fromCenter' ? -projectile.length : projectile.length
-      );
-      const point2 = CoordinateSystemConverter.toCartesian({
-        radians: projectile.position.radians,
-        radius: point2Radius >= 0 ? point2Radius : 0,
-      }, projectile.origin);
-      const point1Px = this.convertToPx(point1);
-      const point2Px = this.convertToPx(point2);
+      const line = projectile.getLine();
+      const point1Px = this.convertToPx(line[0]);
+      const point2Px = this.convertToPx(line[1]);
 
       this.ctx.strokeStyle = projectile.color;
       this.ctx.beginPath();

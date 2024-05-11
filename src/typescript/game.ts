@@ -1,6 +1,8 @@
 import { Cannon } from './cannon/cannon';
+import { Rectangle } from './models/geometry/rectangle.interface';
 import { BlasterProjectile } from './projectile/blaster-projectile';
 import { Projectile } from './projectile/projectile';
+import { isPointInsideIntervals } from './utils/is-point-inside-intervals';
 
 export class Game {
   private _allyProjectiles: BlasterProjectile[] = [];
@@ -29,10 +31,31 @@ export class Game {
     return this._cannon;
   }
 
+  private static getBlasterProjectilesInside(
+    borders: Rectangle,
+    projectiles: BlasterProjectile[]
+  ): BlasterProjectile[] {
+    const xMin = borders.x;
+    const xMax = borders.x + borders.width;
+    const yMin = borders.y;
+    const yMax = borders.y + borders.height;
+
+    return projectiles.filter((projectile) => {
+      const line = projectile.getLine();
+      return isPointInsideIntervals(line[0], xMin, xMax, yMin, yMax)
+        && isPointInsideIntervals(line[1], xMin, xMax, yMin, yMax);
+    });
+  }
+
   private static moveProjectilesGroup(projectiles: Projectile[], ms: number): void {
     projectiles.forEach(projectile => {
       projectile.move(ms);
     });
+  }
+
+  public clearProjectilesOutside(borders: Rectangle): void {
+    this._allyProjectiles = Game.getBlasterProjectilesInside(borders, this._allyProjectiles);
+    this._enemyProjectiles = Game.getBlasterProjectilesInside(borders, this._enemyProjectiles);
   }
 
   public fire(): void {

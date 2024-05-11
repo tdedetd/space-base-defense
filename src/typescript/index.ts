@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
   }
 
   const game = new Game();
-  const gameRenderer = new GameRenderer(gameCanvas);
+  const gameRenderer = new GameRenderer(gameCanvas, game);
 
   containerOnClick(container, game);
   containerOnMousemove(container, gameRenderer, game);
@@ -23,9 +23,9 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
   gameRenderer.updateSceneMeasures();
 
-  const tick = new Tick(gameRenderer);
+  const tick = new Tick();
   tick.run(event.timeStamp);
-  tick.setGame(game);
+  tick.setGameRenderer(gameRenderer);
 });
 
 function containerOnClick(container: HTMLDivElement, game: Game): void {
