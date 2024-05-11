@@ -16,8 +16,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
   const game = new Game();
   const gameRenderer = new GameRenderer(gameCanvas, game);
 
-  containerOnClick(container, game);
-  containerOnMousemove(container, gameRenderer, game);
+  containerOnClick(container, game, gameRenderer);
+  containerOnMousemove(container, gameRenderer);
   windowOnKeydown(gameRenderer, game);
   windowOnResize(gameRenderer);
 
@@ -28,30 +28,39 @@ document.addEventListener('DOMContentLoaded', (event) => {
   tick.setGameRenderer(gameRenderer);
 });
 
-function containerOnClick(container: HTMLDivElement, game: Game): void {
+function containerOnClick(container: HTMLDivElement, game: Game, gameRenderer: GameRenderer): void {
   container.addEventListener('click', () => {
-    game.fire();
+    if (!gameRenderer.pause) {
+      game.fire();
+    }
   });
 }
 
-function containerOnMousemove(
-  container: HTMLDivElement,
-  gameRenderer: GameRenderer,
-  game: Game,
-): void {
+function containerOnMousemove(container: HTMLDivElement, gameRenderer: GameRenderer): void {
   container.addEventListener('mousemove', (event) => {
-    gameRenderer.rotateCannon(event.offsetX, event.offsetY, game);
+    gameRenderer.setActiveScenePosition(event.offsetX, event.offsetY);
+    gameRenderer.updateCannonRotation();
   });
 }
 
 function windowOnKeydown(gameRenderer: GameRenderer, game: Game): void {
   window.addEventListener('keydown', (event) => {
     if (['f', 'а'].includes(event.key.toLowerCase())) {
-      game.fire();
+      if (!gameRenderer.pause) {
+        game.fire();
+      }
     }
 
     if (['d', 'в'].includes(event.key.toLowerCase())) {
       gameRenderer.toggleDisplayDebug();
+    }
+
+    if (event.key === 'Escape') {
+      gameRenderer.togglePause();
+
+      if (!gameRenderer.pause) {
+        gameRenderer.updateCannonRotation();
+      }
     }
   });
 }

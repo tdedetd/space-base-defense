@@ -11,7 +11,6 @@ export class Game {
     barrelLength: 30,
     position: { x: 100, y: 100 },
     reloadingTimeMs: 2000,
-    rotationRadians: 15,
     projectileOptions: {
       speed: 400,
       color: 'rgb(255, 100, 100)',

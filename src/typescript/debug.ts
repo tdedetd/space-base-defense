@@ -2,7 +2,7 @@ import { Game } from './game';
 import { Point } from './models/geometry/point.intarface';
 
 export class Debug {
-  private readonly fontSize = 18;
+  private readonly fontSize = 16;
   private readonly lineSpacing = 8;
   private readonly fontStyle: string;
 
@@ -15,12 +15,18 @@ export class Debug {
     sceneWidthPx: number,
     sceneHeightPx: number,
     sceneOriginPx: Point,
+    activeScenePosition: Point | null,
+    pause: boolean
   ): void {
     this.renderSceneBounds(sceneWidthPx, sceneHeightPx, sceneOriginPx);
-    this.renderDebugInfo(game);
+    this.renderDebugInfo(game, activeScenePosition, pause);
   }
 
-  private renderDebugInfo(game: Game): void {
+  private renderDebugInfo(
+    game: Game,
+    activeScenePosition: Point | null,
+    pause: boolean
+  ): void {
     this.ctx.fillStyle = 'white';
     this.ctx.letterSpacing = '1px';
     this.ctx.font = this.fontStyle;
@@ -29,6 +35,15 @@ export class Debug {
     );
     this.ctx.fillText(
       `Enemy projectiles: ${game.enemyProjectiles.length}`, 10, (this.fontSize + this.lineSpacing) * 2
+    );
+    this.ctx.fillText(
+      `Paused: ${pause}`, 10, (this.fontSize + this.lineSpacing) * 3
+    );
+
+    const activeScenePositionStr = activeScenePosition
+      ? `(${activeScenePosition.x.toFixed(2)}; ${activeScenePosition.y.toFixed(2)})` : `-`;
+    this.ctx.fillText(
+      `Active scene position: ${activeScenePositionStr}`, 10, (this.fontSize + this.lineSpacing) * 4
     );
   }
 

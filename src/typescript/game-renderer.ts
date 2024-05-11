@@ -11,6 +11,7 @@ export class GameRenderer {
   private readonly debug: Debug;
   private readonly despawner: ProjectileDespawner;
   private readonly _game: Game;
+  private _pause = false;
 
   private readonly aspectRatio = 3 / 4;
   private readonly ctx: CanvasRenderingContext2D;
@@ -21,9 +22,14 @@ export class GameRenderer {
   private sceneHeightPx: number = 0;
   private sceneOriginPx: Point = { x: 0, y: 0 };
   private sceneYStartPx: number = 0;
+  private activeScenePosition: Point | null = null;
 
   public get game(): Game {
     return this._game;
+  }
+
+  public get pause(): boolean {
+    return this._pause;
   }
 
   constructor(
@@ -55,18 +61,29 @@ export class GameRenderer {
         this.sceneWidthPx,
         this.sceneHeightPx,
         this.sceneOriginPx,
+        this.activeScenePosition,
+        this._pause
       );
     }
   }
 
-  public rotateCannon(xPx: number, yPx: number, game: Game): void {
-    const scenePoint = this.convertToScenePoint({ x: xPx, y: yPx });
-    const angle = CoordinateSystemConverter.toPolar(scenePoint, game.cannon.position);
-    game.setCannonRotation(angle.radians);
-  }
-
   public toggleDisplayDebug(): void {
     this.displayDebug = !this.displayDebug;
+  }
+
+  public togglePause(): void {
+    this._pause = !this._pause;
+  }
+
+  public setActiveScenePosition(xPx: number, yPx: number): void {
+    this.activeScenePosition = this.convertToScenePoint({ x: xPx, y: yPx });
+  }
+
+  public updateCannonRotation(): void {
+    if (this.activeScenePosition && !this.pause) {
+      const angle = CoordinateSystemConverter.toPolar(this.activeScenePosition, this.game.cannon.position);
+      this.game.setCannonRotation(angle.radians);
+    }
   }
 
   public updateSceneMeasures(): void {

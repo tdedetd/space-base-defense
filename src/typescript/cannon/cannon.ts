@@ -31,7 +31,7 @@ export class Cannon {
     reloadingTimeMs
   }: CannonOptions) {
     this._position = position;
-    this._rotationRadians = toRadians(rotationRadians ?? 45);
+    this._rotationRadians = rotationRadians ?? toRadians(45);
     this._barrelLength = barrelLength;
     this._projectileOptions = projectileOptions;
     this._reloadingTimeMs = reloadingTimeMs;

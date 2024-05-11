@@ -15,7 +15,9 @@ export class Tick {
       lastTimestampMs = currentTimestamp;
 
       if (this.gameRenderer) {
-        this.gameRenderer.game.moveProjectiles(diffMs);
+        if (!this.gameRenderer.pause) {
+          this.gameRenderer.game.moveProjectiles(diffMs);
+        }
         this.gameRenderer.render();
       }
 
