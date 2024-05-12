@@ -10,7 +10,7 @@ export class Tick {
   public run(startTimestamp: number): void {
     let lastTimestampMs = startTimestamp;
 
-    const tick = (currentTimestamp: number) => {
+    const tick = (currentTimestamp: number): void => {
       const diffMs = currentTimestamp - lastTimestampMs;
       lastTimestampMs = currentTimestamp;
 

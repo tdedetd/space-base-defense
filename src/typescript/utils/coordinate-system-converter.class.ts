@@ -24,13 +24,13 @@ export class CoordinateSystemConverter {
         ? innerPoint.y > 0
           ? Math.PI / 2
           : innerPoint.y < 0
-          ? Math.PI * 3 / 2
-          : 0
-      : innerPoint.x > 0
-        ? innerPoint.y >= 0
-          ? Math.atan(innerPoint.y / innerPoint.x)
-          : Math.atan(innerPoint.y / innerPoint.x) + Math.PI * 2
-      : Math.atan(innerPoint.y / innerPoint.x) + Math.PI;
+            ? Math.PI * 3 / 2
+            : 0
+        : innerPoint.x > 0
+          ? innerPoint.y >= 0
+            ? Math.atan(innerPoint.y / innerPoint.x)
+            : Math.atan(innerPoint.y / innerPoint.x) + Math.PI * 2
+          : Math.atan(innerPoint.y / innerPoint.x) + Math.PI;
 
     return { radians, radius };
   }

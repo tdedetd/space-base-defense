@@ -27,7 +27,7 @@ export class BlasterProjectile extends Projectile {
         radians: this._position.radians,
         radius: point2Radius >= 0 ? point2Radius : 0,
       }, this._origin)
-    ]
+    ];
   }
 
   public intersects(hitBox: Rectangle): boolean {

@@ -1,7 +1,9 @@
+import { BaseModule } from './base-module';
 import { Cannon } from './cannon/cannon';
 import { Debug } from './debug';
 import { Game } from './game';
 import { Point } from './models/geometry/point.intarface';
+import { Rectangle } from './models/geometry/rectangle.interface';
 import { ProjectileDespawner } from './projectile-despawner';
 import { BlasterProjectile } from './projectile/blaster-projectile';
 import { CoordinateSystemConverter } from './utils/coordinate-system-converter.class';
@@ -53,6 +55,7 @@ export class GameRenderer {
 
     this.renderBlasterProjectiles(this._game.allyProjectiles);
     this.renderBlasterProjectiles(this._game.enemyProjectiles);
+    this.renderBaseModules(this._game.baseModules);
     this.renderCannon(this._game.cannon);
 
     if (this.displayDebug) {
@@ -76,7 +79,7 @@ export class GameRenderer {
   }
 
   public setActiveScenePosition(xPx: number, yPx: number): void {
-    this.activeScenePosition = this.convertToScenePoint({ x: xPx, y: yPx });
+    this.activeScenePosition = this.convertPointToScenePoint({ x: xPx, y: yPx });
   }
 
   public updateCannonRotation(): void {
@@ -122,25 +125,49 @@ export class GameRenderer {
     this.ctx.clearRect(0, 0, this.container.width, this.container.height);
   }
 
-  private convertToPx(scenePoint: Point): Point {
+  private convertPointToPx(scenePoint: Point): Point {
     return {
       x: this.sceneOriginPx.x + (scenePoint.x / this.sceneWidth * this.sceneWidthPx),
       y: this.sceneYStartPx - (scenePoint.y / this.sceneHeight * this.sceneHeightPx),
     };
   }
 
-  private convertToScenePoint(pointPx: Point): Point {
+  private convertRectangleToPx(sceneRectangle: Rectangle): Rectangle {
+    const startPoint = this.convertPointToPx({
+      x: sceneRectangle.x,
+      y: sceneRectangle.y
+    });
+
+    const height = this.sceneHeightPx / this.sceneHeight * sceneRectangle.height
+    return {
+      x: startPoint.x,
+      y: startPoint.y - height,
+      width: this.sceneWidthPx / this.sceneWidth * sceneRectangle.width,
+      height: height,
+    };
+  }
+
+  private convertPointToScenePoint(pointPx: Point): Point {
     return {
       x: (pointPx.x - this.sceneOriginPx.x) / this.sceneWidthPx * this.sceneWidth,
       y: (this.sceneYStartPx - pointPx.y) / this.sceneHeightPx * this.sceneHeight,
     };
   }
 
+  private renderBaseModules(baseModules: BaseModule[]): void {
+    this.ctx.strokeStyle = 'white';
+
+    baseModules.forEach(({ rectangle }) => {
+      const rectanglePx = this.convertRectangleToPx(rectangle);
+      this.ctx.strokeRect(rectanglePx.x, rectanglePx.y, rectanglePx.width, rectanglePx.height);
+    });
+  }
+
   private renderBlasterProjectiles(projectiles: BlasterProjectile[]): void {
     projectiles.forEach((projectile) => {
       const line = projectile.getLine();
-      const point1Px = this.convertToPx(line[0]);
-      const point2Px = this.convertToPx(line[1]);
+      const point1Px = this.convertPointToPx(line[0]);
+      const point2Px = this.convertPointToPx(line[1]);
 
       this.ctx.strokeStyle = projectile.color;
       this.ctx.beginPath();
@@ -158,8 +185,8 @@ export class GameRenderer {
       },
       cannon.position
     );
-    const point1Px = this.convertToPx(cannon.position);
-    const point2Px = this.convertToPx(point2);
+    const point1Px = this.convertPointToPx(cannon.position);
+    const point2Px = this.convertPointToPx(point2);
 
     this.ctx.strokeStyle = 'white';
     this.ctx.beginPath();

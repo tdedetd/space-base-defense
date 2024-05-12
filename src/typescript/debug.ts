@@ -41,7 +41,7 @@ export class Debug {
     );
 
     const activeScenePositionStr = activeScenePosition
-      ? `(${activeScenePosition.x.toFixed(2)}; ${activeScenePosition.y.toFixed(2)})` : `-`;
+      ? `(${activeScenePosition.x.toFixed(2)}; ${activeScenePosition.y.toFixed(2)})` : '-';
     this.ctx.fillText(
       `Active scene position: ${activeScenePositionStr}`, 10, (this.fontSize + this.lineSpacing) * 4
     );
