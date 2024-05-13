@@ -1,4 +1,5 @@
 import { Game } from './game';
+import { Measures } from './measures';
 import { Point } from './models/geometry/point.intarface';
 
 export class Debug {
@@ -7,19 +8,19 @@ export class Debug {
   private readonly fontStyle: string;
   private readonly hitboxColor = 'rgba(255, 255, 255, 0.5)';
 
-  constructor(private readonly ctx: CanvasRenderingContext2D) {
+  constructor(
+    private readonly ctx: CanvasRenderingContext2D,
+    private readonly measures: Measures
+  ) {
     this.fontStyle = `${this.fontSize}px sans-serif`;
   }
 
   public render(
     game: Game,
-    sceneWidthPx: number,
-    sceneHeightPx: number,
-    sceneOriginPx: Point,
     activeScenePosition: Point | null,
     pause: boolean
   ): void {
-    this.renderSceneBounds(sceneWidthPx, sceneHeightPx, sceneOriginPx);
+    this.renderSceneBounds();
     this.renderDebugInfo(game, activeScenePosition, pause);
   }
 
@@ -48,12 +49,13 @@ export class Debug {
     );
   }
 
-  private renderSceneBounds(
-    sceneWidthPx: number,
-    sceneHeightPx: number,
-    sceneOriginPx: Point,
-  ): void {
+  private renderSceneBounds(): void {
     this.ctx.strokeStyle = this.hitboxColor;
-    this.ctx.strokeRect(sceneOriginPx.x, sceneOriginPx.y, sceneWidthPx, sceneHeightPx);
+    this.ctx.strokeRect(
+      this.measures.sceneOriginPx.x,
+      this.measures.sceneOriginPx.y,
+      this.measures.sceneWidthPx,
+      this.measures.sceneHeightPx
+    );
   }
 }

@@ -2,8 +2,8 @@ import { BaseModule } from './base/base-module';
 import { Cannon } from './cannon/cannon';
 import { Debug } from './debug';
 import { Game } from './game';
+import { Measures } from './measures';
 import { Point } from './models/geometry/point.intarface';
-import { Rectangle } from './models/geometry/rectangle.interface';
 import { ProjectileDespawner } from './projectile-despawner';
 import { BlasterProjectile } from './projectile/blaster-projectile';
 import { CoordinateSystemConverter } from './utils/coordinate-system-converter.class';
@@ -14,16 +14,10 @@ export class GameRenderer {
   private readonly despawner: ProjectileDespawner;
   private readonly _game: Game;
   private _pause = false;
+  private measures = new Measures(3 / 4, 1000);
 
-  private readonly aspectRatio = 3 / 4;
   private readonly ctx: CanvasRenderingContext2D;
-  private readonly sceneWidth = 1000;
-  private readonly sceneHeight = this.sceneWidth * this.aspectRatio;
 
-  private sceneWidthPx: number = 0;
-  private sceneHeightPx: number = 0;
-  private sceneOriginPx: Point = { x: 0, y: 0 };
-  private sceneYStartPx: number = 0;
   private activeScenePosition: Point | null = null;
 
   public get game(): Game {
@@ -44,7 +38,7 @@ export class GameRenderer {
     }
     this.ctx = ctx;
     this._game = game;
-    this.debug = new Debug(ctx);
+    this.debug = new Debug(ctx, this.measures);
 
     this.despawner = new ProjectileDespawner(this._game);
     this.despawner.run();
@@ -61,9 +55,6 @@ export class GameRenderer {
     if (this.displayDebug) {
       this.debug.render(
         this._game,
-        this.sceneWidthPx,
-        this.sceneHeightPx,
-        this.sceneOriginPx,
         this.activeScenePosition,
         this._pause
       );
@@ -79,7 +70,7 @@ export class GameRenderer {
   }
 
   public setActiveScenePosition(xPx: number, yPx: number): void {
-    this.activeScenePosition = this.convertPointToScenePoint({ x: xPx, y: yPx });
+    this.activeScenePosition = this.measures.convertPointToScenePoint({ x: xPx, y: yPx });
   }
 
   public updateCannonRotation(): void {
@@ -92,32 +83,17 @@ export class GameRenderer {
   public updateSceneMeasures(): void {
     this.container.width = this.container.clientWidth;
     this.container.height = this.container.clientHeight;
-    const { width, height } = this.container;
 
-    if (width * this.aspectRatio < height) {
-      this.sceneWidthPx = width;
-      this.sceneHeightPx = Math.round(width * this.aspectRatio);
-      this.sceneOriginPx = {
-        x: 0,
-        y: Math.round(height / 2 - this.sceneHeightPx / 2),
-      };
-    } else {
-      this.sceneWidthPx = Math.round(height / this.aspectRatio);
-      this.sceneHeightPx = height;
-      this.sceneOriginPx = {
-        x: Math.round(width / 2 - this.sceneWidthPx / 2),
-        y: 0,
-      };
-    }
+    this.measures.update(this.container.width, this.container.height);
 
-    this.sceneYStartPx = this.sceneOriginPx.y + this.sceneHeightPx;
-    const x = -this.sceneOriginPx.x * (this.sceneWidth / this.sceneWidthPx);
-    const y = -this.sceneOriginPx.y * (this.sceneHeight / this.sceneHeightPx);
+    const x = -this.measures.sceneOriginPx.x * (this.measures.sceneWidth / this.measures.sceneWidthPx);
+    const y = -this.measures.sceneOriginPx.y * (this.measures.sceneHeight / this.measures.sceneHeightPx);
+
     this.despawner.setBorders({
       x,
       y,
-      width: this.sceneWidth + (-x * 2),
-      height: this.sceneHeight + (-y * 2),
+      width: this.measures.sceneWidth + (-x * 2),
+      height: this.measures.sceneHeight + (-y * 2),
     });
   }
 
@@ -125,40 +101,11 @@ export class GameRenderer {
     this.ctx.clearRect(0, 0, this.container.width, this.container.height);
   }
 
-  private convertPointToPx(scenePoint: Point): Point {
-    return {
-      x: this.sceneOriginPx.x + (scenePoint.x / this.sceneWidth * this.sceneWidthPx),
-      y: this.sceneYStartPx - (scenePoint.y / this.sceneHeight * this.sceneHeightPx),
-    };
-  }
-
-  private convertRectangleToPx(sceneRectangle: Rectangle): Rectangle {
-    const startPoint = this.convertPointToPx({
-      x: sceneRectangle.x,
-      y: sceneRectangle.y
-    });
-
-    const height = this.sceneHeightPx / this.sceneHeight * sceneRectangle.height
-    return {
-      x: startPoint.x,
-      y: startPoint.y - height,
-      width: this.sceneWidthPx / this.sceneWidth * sceneRectangle.width,
-      height: height,
-    };
-  }
-
-  private convertPointToScenePoint(pointPx: Point): Point {
-    return {
-      x: (pointPx.x - this.sceneOriginPx.x) / this.sceneWidthPx * this.sceneWidth,
-      y: (this.sceneYStartPx - pointPx.y) / this.sceneHeightPx * this.sceneHeight,
-    };
-  }
-
   private renderBaseModules(baseModules: BaseModule[]): void {
     this.ctx.strokeStyle = 'white';
 
     baseModules.forEach(({ rectangle }) => {
-      const rectanglePx = this.convertRectangleToPx(rectangle);
+      const rectanglePx = this.measures.convertRectangleToPx(rectangle);
       this.ctx.strokeRect(rectanglePx.x, rectanglePx.y, rectanglePx.width, rectanglePx.height);
     });
   }
@@ -166,8 +113,8 @@ export class GameRenderer {
   private renderBlasterProjectiles(projectiles: BlasterProjectile[]): void {
     projectiles.forEach((projectile) => {
       const line = projectile.getLine();
-      const point1Px = this.convertPointToPx(line[0]);
-      const point2Px = this.convertPointToPx(line[1]);
+      const point1Px = this.measures.convertPointToPx(line[0]);
+      const point2Px = this.measures.convertPointToPx(line[1]);
 
       this.ctx.strokeStyle = projectile.color;
       this.ctx.beginPath();
@@ -185,8 +132,8 @@ export class GameRenderer {
       },
       cannon.position
     );
-    const point1Px = this.convertPointToPx(cannon.position);
-    const point2Px = this.convertPointToPx(point2);
+    const point1Px = this.measures.convertPointToPx(cannon.position);
+    const point2Px = this.measures.convertPointToPx(point2);
 
     this.ctx.strokeStyle = 'white';
     this.ctx.beginPath();
