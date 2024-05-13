@@ -5,6 +5,7 @@ export class Debug {
   private readonly fontSize = 16;
   private readonly lineSpacing = 8;
   private readonly fontStyle: string;
+  private readonly hitboxColor = 'rgba(255, 255, 255, 0.5)';
 
   constructor(private readonly ctx: CanvasRenderingContext2D) {
     this.fontStyle = `${this.fontSize}px sans-serif`;
@@ -52,7 +53,7 @@ export class Debug {
     sceneHeightPx: number,
     sceneOriginPx: Point,
   ): void {
-    this.ctx.strokeStyle = 'white';
+    this.ctx.strokeStyle = this.hitboxColor;
     this.ctx.strokeRect(sceneOriginPx.x, sceneOriginPx.y, sceneWidthPx, sceneHeightPx);
   }
 }

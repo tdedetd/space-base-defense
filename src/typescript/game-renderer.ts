@@ -1,4 +1,4 @@
-import { BaseModule } from './base-module';
+import { BaseModule } from './base/base-module';
 import { Cannon } from './cannon/cannon';
 import { Debug } from './debug';
 import { Game } from './game';

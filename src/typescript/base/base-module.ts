@@ -1,4 +1,4 @@
-import { Rectangle } from './models/geometry/rectangle.interface';
+import { Rectangle } from '../models/geometry/rectangle.interface';
 
 export class BaseModule {
   private _destroyed = false;

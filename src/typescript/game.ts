@@ -1,4 +1,5 @@
-import { BaseModule } from './base-module';
+import { Base } from './base/base';
+import { BaseModule } from './base/base-module';
 import { Cannon } from './cannon/cannon';
 import { Rectangle } from './models/geometry/rectangle.interface';
 import { BlasterProjectile } from './projectile/blaster-projectile';
@@ -19,7 +20,7 @@ export class Game {
     },
   });
 
-  private _baseModules: BaseModule[] = [
+  private base = new Base([
     new BaseModule({
       x: 200,
       y: 20,
@@ -38,7 +39,7 @@ export class Game {
       width: 30,
       height: 16,
     }),
-  ];
+  ]);
 
   public get allyProjectiles(): BlasterProjectile[] {
     return this._allyProjectiles;
@@ -53,7 +54,7 @@ export class Game {
   }
 
   public get baseModules(): BaseModule[] {
-    return this._baseModules;
+    return this.base.modules;
   }
 
   private static getBlasterProjectilesInside(
