@@ -1,6 +1,7 @@
 import { Game } from './game';
 import { Measures } from './measures';
 import { Point } from './models/geometry/point.intarface';
+import { Rectangle } from './models/geometry/rectangle.interface';
 
 export class Debug {
   private readonly fontSize = 16;
@@ -21,7 +22,14 @@ export class Debug {
     pause: boolean
   ): void {
     this.renderSceneBounds();
+    this.renderBaseHitbox(game.base.getBorders());
     this.renderDebugInfo(game, activeScenePosition, pause);
+  }
+
+  private renderBaseHitbox(hitbox: Rectangle): void {
+    this.ctx.strokeStyle = this.hitboxColor;
+    const rectacangle = this.measures.convertRectangleToPx(hitbox);
+    this.ctx.strokeRect(rectacangle.x, rectacangle.y, rectacangle.width, rectacangle.height);
   }
 
   private renderDebugInfo(

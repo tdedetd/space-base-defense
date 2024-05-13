@@ -26,7 +26,7 @@ export class Base {
       maxX = moduleMaxX > maxX ? moduleMaxX : maxX;
 
       const moduleMaxY = rectangle.y + rectangle.height;
-      minY = moduleMaxY > minY ? moduleMaxY : minY;
+      maxY = moduleMaxY > maxY ? moduleMaxY : maxY;
     });
 
     return {

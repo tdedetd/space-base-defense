@@ -1,5 +1,6 @@
 import { Game } from './game';
 import { GameRenderer } from './game-renderer';
+import { DomEventsOptions } from './models/dom-events-options.interface';
 import { Tick } from './tick';
 
 document.addEventListener('DOMContentLoaded', (event) => {
@@ -16,10 +17,17 @@ document.addEventListener('DOMContentLoaded', (event) => {
   const game = new Game();
   const gameRenderer = new GameRenderer(gameCanvas, game);
 
-  containerOnClick(container, game, gameRenderer);
-  containerOnMousemove(container, gameRenderer);
-  windowOnKeydown(gameRenderer, game);
-  windowOnResize(gameRenderer);
+  const domEventsOptions: DomEventsOptions = { container, game, gameRenderer };
+  const uiFunctions: ((domEventsOptions: DomEventsOptions) => void)[] = [
+    containerOnClick,
+    containerOnMousemove,
+    windowOnKeydown,
+    windowOnResize
+  ];
+
+  uiFunctions.forEach((func) => {
+    func(domEventsOptions);
+  });
 
   gameRenderer.updateSceneMeasures();
 
@@ -28,7 +36,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
   tick.setGameRenderer(gameRenderer);
 });
 
-function containerOnClick(container: HTMLDivElement, game: Game, gameRenderer: GameRenderer): void {
+function containerOnClick({ container, gameRenderer, game }: DomEventsOptions): void {
   container.addEventListener('click', () => {
     if (!gameRenderer.pause) {
       game.fire();
@@ -36,14 +44,14 @@ function containerOnClick(container: HTMLDivElement, game: Game, gameRenderer: G
   });
 }
 
-function containerOnMousemove(container: HTMLDivElement, gameRenderer: GameRenderer): void {
+function containerOnMousemove({ container, gameRenderer }: DomEventsOptions): void {
   container.addEventListener('mousemove', (event) => {
     gameRenderer.setActiveScenePosition(event.offsetX, event.offsetY);
     gameRenderer.updateCannonRotation();
   });
 }
 
-function windowOnKeydown(gameRenderer: GameRenderer, game: Game): void {
+function windowOnKeydown({ gameRenderer, game }: DomEventsOptions): void {
   window.addEventListener('keydown', (event) => {
     if (['f', 'а'].includes(event.key.toLowerCase())) {
       if (!gameRenderer.pause) {
@@ -65,7 +73,7 @@ function windowOnKeydown(gameRenderer: GameRenderer, game: Game): void {
   });
 }
 
-function windowOnResize(gameRenderer: GameRenderer): void {
+function windowOnResize({ gameRenderer }: DomEventsOptions): void {
   window.addEventListener('resize', () => {
     gameRenderer.updateSceneMeasures();
   });

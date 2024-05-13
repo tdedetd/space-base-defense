@@ -52,7 +52,7 @@ export class Measures {
       y: sceneRectangle.y
     });
 
-    const height = this.sceneHeightPx / this.sceneHeight * sceneRectangle.height
+    const height = this.sceneHeightPx / this.sceneHeight * sceneRectangle.height;
     return {
       x: startPoint.x,
       y: startPoint.y - height,

@@ -20,7 +20,7 @@ export class Game {
     },
   });
 
-  private base = new Base([
+  private _base = new Base([
     new BaseModule({
       x: 200,
       y: 20,
@@ -51,6 +51,10 @@ export class Game {
 
   public get cannon(): Cannon {
     return this._cannon;
+  }
+
+  public get base(): Base {
+    return this._base;
   }
 
   public get baseModules(): BaseModule[] {

@@ -45,6 +45,7 @@ export abstract class Projectile {
     this._position = position;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public intersects(hitBox: Rectangle): boolean {
     throw new Error('Method is not implemented');
   }
@@ -59,6 +60,10 @@ export abstract class Projectile {
       case 'toCenter':
         this._position.radius -= distance;
         break;
+      default:
+        throw new Error(
+          `this._direction must have one of following values: fromCenter, toCenter. Current value: ${this._direction}`
+        );
     }
   }
 }
