@@ -53,7 +53,11 @@ export class Debug {
     const activeScenePositionStr = activeScenePosition
       ? `(${activeScenePosition.x.toFixed(2)}; ${activeScenePosition.y.toFixed(2)})` : '-';
     this.ctx.fillText(
-      `Active scene position: ${activeScenePositionStr}`, 10, (this.fontSize + this.lineSpacing) * 4
+      `Active position: ${activeScenePositionStr}`, 10, (this.fontSize + this.lineSpacing) * 4
+    );
+
+    this.ctx.fillText(
+      `Time: ${(game.msFromStart / 1000).toFixed(0)}s`, 10, (this.fontSize + this.lineSpacing) * 5
     );
   }
 

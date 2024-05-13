@@ -43,7 +43,7 @@ export class EnemyProjectileSpawner {
         ...this.projectileOptions,
         origin: this.getTargetPosition(),
         position: {
-          radians: toRadians(Random.interval(15, 100)),
+          radians: toRadians(Random.interval(40, 140)),
           radius: 750
         },
         direction: 'toCenter',

@@ -48,10 +48,10 @@ export class GameRenderer {
   public render(): void {
     this.clearScene();
 
-    this.renderBlasterProjectiles(this._game.allyProjectiles);
     this.renderBlasterProjectiles(this._game.enemyProjectiles);
+    this.renderBlasterProjectiles(this._game.allyProjectiles);
     this.renderBaseModules(this._game.baseModules);
-    this.renderCannon(this._game.cannon);
+    this.renderCannons(this._game.cannons);
 
     if (this.displayDebug) {
       this.debug.render(
@@ -76,8 +76,10 @@ export class GameRenderer {
 
   public updateCannonRotation(): void {
     if (this.activeScenePosition && !this.pause) {
-      const angle = CoordinateSystemConverter.toPolar(this.activeScenePosition, this.game.cannon.position);
-      this.game.setCannonRotation(angle.radians);
+      for (const cannon of this.game.cannons) {
+        const pointPolar = CoordinateSystemConverter.toPolar(this.activeScenePosition, cannon.position);
+        cannon.setRotation(pointPolar.radians);
+      }
     }
   }
 
@@ -127,21 +129,23 @@ export class GameRenderer {
     });
   }
 
-  private renderCannon(cannon: Cannon): void {
-    const point2 = CoordinateSystemConverter.toCartesian(
-      {
-        radians: cannon.rotationRadians,
-        radius: cannon.barrelLength,
-      },
-      cannon.position
-    );
-    const point1Px = this.measures.convertPointToPx(cannon.position);
-    const point2Px = this.measures.convertPointToPx(point2);
+  private renderCannons(cannons: Cannon[]): void {
+    cannons.forEach((cannon) => {
+      const point2 = CoordinateSystemConverter.toCartesian(
+        {
+          radians: cannon.rotationRadians,
+          radius: cannon.barrelLength,
+        },
+        cannon.position
+      );
+      const point1Px = this.measures.convertPointToPx(cannon.position);
+      const point2Px = this.measures.convertPointToPx(point2);
 
-    this.ctx.strokeStyle = 'white';
-    this.ctx.beginPath();
-    this.ctx.moveTo(point1Px.x, point1Px.y);
-    this.ctx.lineTo(point2Px.x, point2Px.y);
-    this.ctx.stroke();
+      this.ctx.strokeStyle = 'white';
+      this.ctx.beginPath();
+      this.ctx.moveTo(point1Px.x, point1Px.y);
+      this.ctx.lineTo(point2Px.x, point2Px.y);
+      this.ctx.stroke();
+    });
   }
 }

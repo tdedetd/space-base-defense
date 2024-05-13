@@ -62,7 +62,7 @@ export abstract class Projectile {
         break;
       default:
         throw new Error(
-          `this._direction must have one of following values: fromCenter, toCenter. Current value: ${this._direction}`
+          `this._direction has incorrect value: ${this._direction}`
         );
     }
   }

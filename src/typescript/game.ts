@@ -6,43 +6,63 @@ import { Rectangle } from './models/geometry/rectangle.interface';
 import { BlasterProjectile } from './projectile/blaster-projectile';
 import { Projectile } from './projectile/projectile';
 import { isPointInsideIntervals } from './utils/is-point-inside-intervals';
+import { toRadians } from './utils/to-radians';
 
 export class Game {
   private _msFromStart = 0;
-  private _enemyProjectileSpawner: EnemyProjectileSpawner;
   private _allyProjectiles: BlasterProjectile[] = [];
   private _enemyProjectiles: BlasterProjectile[] = [];
-  private _cannon = new Cannon({
-    barrelLength: 30,
-    position: { x: 900, y: 100 },
-    reloadingTimeMs: 2000,
-    projectileOptions: {
-      speed: 1000,
-      color: 'rgb(0, 255, 0)',
-      length: 25
-    },
-  });
+  private _enemyProjectileSpawner: EnemyProjectileSpawner;
+
+  private _cannons: Cannon[] = [
+    new Cannon({
+      barrelLength: 30,
+      rotationRadians: toRadians(45),
+      position: { x: 100, y: 100 },
+      reloadingTimeMs: 2000,
+      projectileOptions: {
+        speed: 1000,
+        color: 'rgb(0, 255, 0)',
+        length: 50
+      },
+    }),
+    new Cannon({
+      barrelLength: 30,
+      rotationRadians: toRadians(135),
+      position: { x: 900, y: 100 },
+      reloadingTimeMs: 2000,
+      projectileOptions: {
+        speed: 1000,
+        color: 'rgb(0, 255, 0)',
+        length: 50
+      },
+    }),
+  ];
 
   private _base = new Base([
     new BaseModule({
-      x: 200,
+      x: 420,
       y: 20,
       width: 30,
       height: 16,
     }),
     new BaseModule({
-      x: 280,
+      x: 500,
       y: 30,
       width: 30,
       height: 18,
     }),
     new BaseModule({
-      x: 325,
+      x: 580,
       y: 26,
       width: 30,
       height: 16,
     }),
   ]);
+
+  public get msFromStart(): number {
+    return this._msFromStart;
+  }
 
   public get allyProjectiles(): BlasterProjectile[] {
     return this._allyProjectiles;
@@ -56,8 +76,8 @@ export class Game {
     return this._enemyProjectileSpawner;
   }
 
-  public get cannon(): Cannon {
-    return this._cannon;
+  public get cannons(): Cannon[] {
+    return this._cannons;
   }
 
   public get base(): Base {
@@ -108,13 +128,11 @@ export class Game {
   }
 
   public fire(): void {
-    this._allyProjectiles.push(
-      this._cannon.fire()
-    );
-  }
+    const newProjectiles = this._cannons.reduce<BlasterProjectile[]>((acc, cannon) => {
+      return [...acc, cannon.fire()];
+    }, []);
 
-  public setCannonRotation(radians: number): void {
-    this._cannon.setRotation(radians);
+    this._allyProjectiles.push(...newProjectiles);
   }
 
   public update(ms: number): void {
