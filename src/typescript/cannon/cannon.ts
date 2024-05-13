@@ -1,5 +1,6 @@
 import { Point } from '../models/geometry/point.intarface';
 import { BlasterProjectile } from '../projectile/blaster-projectile';
+import { BlasterProjectileCharacteristics } from '../projectile/models/blaster-projectile-characteristics.type';
 import { CoordinateSystemConverter } from '../utils/coordinate-system-converter.class';
 import { toRadians } from '../utils/to-radians';
 import { CannonOptions } from './models/cannon-options.interface';
@@ -8,7 +9,7 @@ export class Cannon {
   private _rotationRadians: number;
   private readonly _barrelLength: number;
   private readonly _position: Point;
-  private readonly _projectileOptions: CannonOptions['projectileOptions'];
+  private readonly _projectileOptions: BlasterProjectileCharacteristics;
   private readonly _reloadingTimeMs: number;
 
   public get barrelLength(): number {
@@ -39,9 +40,7 @@ export class Cannon {
 
   public fire(): BlasterProjectile {
     return new BlasterProjectile({
-      length: this._projectileOptions.length,
-      speed: this._projectileOptions.speed,
-      color: this._projectileOptions.color,
+      ...this._projectileOptions,
       direction: 'fromCenter',
       position: { radius: 0, radians: this._rotationRadians },
       origin: CoordinateSystemConverter.toCartesian(

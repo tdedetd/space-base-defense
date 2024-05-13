@@ -4,6 +4,7 @@ import { Debug } from './debug';
 import { Game } from './game';
 import { Measures } from './measures';
 import { Point } from './models/geometry/point.intarface';
+import { Rectangle } from './models/geometry/rectangle.interface';
 import { ProjectileDespawner } from './projectile-despawner';
 import { BlasterProjectile } from './projectile/blaster-projectile';
 import { CoordinateSystemConverter } from './utils/coordinate-system-converter.class';
@@ -89,12 +90,14 @@ export class GameRenderer {
     const x = -this.measures.sceneOriginPx.x * (this.measures.sceneWidth / this.measures.sceneWidthPx);
     const y = -this.measures.sceneOriginPx.y * (this.measures.sceneHeight / this.measures.sceneHeightPx);
 
-    this.despawner.setBorders({
+    const sceneBorders: Rectangle = {
       x,
       y,
       width: this.measures.sceneWidth + (-x * 2),
       height: this.measures.sceneHeight + (-y * 2),
-    });
+    };
+    this.despawner.setBorders(sceneBorders);
+    this.game.enemyProjectilesSpawner.setBorders(sceneBorders);
   }
 
   private clearScene(): void {

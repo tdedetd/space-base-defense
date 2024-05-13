@@ -25,7 +25,7 @@ export class BlasterProjectile extends Projectile {
       CoordinateSystemConverter.toCartesian(this._position, this._origin),
       CoordinateSystemConverter.toCartesian({
         radians: this._position.radians,
-        radius: point2Radius >= 0 ? point2Radius : 0,
+        radius: this._direction === 'toCenter' || point2Radius >= 0 ? point2Radius : 0,
       }, this._origin)
     ];
   }
