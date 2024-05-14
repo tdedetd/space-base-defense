@@ -107,10 +107,9 @@ export class GameRenderer {
   }
 
   private renderBaseModules(baseModules: BaseModule[]): void {
-    this.ctx.strokeStyle = 'white';
-
-    baseModules.forEach(({ rectangle }) => {
-      const rectanglePx = this.measures.convertRectangleToPx(rectangle);
+    baseModules.forEach((module) => {
+      this.ctx.strokeStyle = module.destroyed ? 'red' : 'white';
+      const rectanglePx = this.measures.convertRectangleToPx(module.rectangle);
       this.ctx.strokeRect(rectanglePx.x, rectanglePx.y, rectanglePx.width, rectanglePx.height);
     });
   }

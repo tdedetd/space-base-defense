@@ -133,7 +133,31 @@ export class Game {
     });
   }
 
-  public checkProjectilesIntersections(): void {
+  public clearProjectilesOutside(borders: Rectangle): void {
+    this._allyProjectiles = Game.getBlasterProjectilesInside(borders, this._allyProjectiles);
+    this._enemyProjectiles = Game.getBlasterProjectilesInside(borders, this._enemyProjectiles);
+  }
+
+  public fire(): void {
+    const newProjectiles = this._cannons.reduce<BlasterProjectile[]>((acc, cannon) => {
+      return [...acc, cannon.fire()];
+    }, []);
+
+    this._allyProjectiles.push(...newProjectiles);
+    this.statistics.addShots(newProjectiles.length);
+  }
+
+  public update(ms: number): void {
+    this._msFromStart += ms;
+
+    this.moveProjectiles(ms);
+    this.requestForSpawEnemyProjectiles(ms);
+
+    this.checkProjectilesIntersections();
+    this.checkBaseModuleIntersections();
+  }
+
+  private checkProjectilesIntersections(): void {
     const allyProjectilesToClear: BlasterProjectile[] = [];
     const enemyProjectilesToClear: BlasterProjectile[] = [];
 
@@ -161,25 +185,29 @@ export class Game {
     this.statistics.addHits(allyProjectilesToClear.length);
   }
 
-  public clearProjectilesOutside(borders: Rectangle): void {
-    this._allyProjectiles = Game.getBlasterProjectilesInside(borders, this._allyProjectiles);
-    this._enemyProjectiles = Game.getBlasterProjectilesInside(borders, this._enemyProjectiles);
-  }
+  private checkBaseModuleIntersections(): void {
+    const enemyProjectilesToClear: BlasterProjectile[] = [];
 
-  public fire(): void {
-    const newProjectiles = this._cannons.reduce<BlasterProjectile[]>((acc, cannon) => {
-      return [...acc, cannon.fire()];
-    }, []);
+    this._enemyProjectiles.forEach((enemyProjectile) => {
+      this.base.getUndestroyedModules().forEach((module) => {
+        const line = enemyProjectile.getLine();
+        const xMin = module.rectangle.x;
+        const yMin = module.rectangle.y;
+        const xMax = module.rectangle.x + module.rectangle.width;
+        const yMax = module.rectangle.y + module.rectangle.height;
+        if (
+          isPointInsideIntervals(line[0], xMin, xMax, yMin, yMax)
+          || isPointInsideIntervals(line[0], xMin, xMax, yMin, yMax)
+        ) {
+          module.destroy();
+          enemyProjectilesToClear.push(enemyProjectile);
+          this.enemyProjectilesSpawner.removeTarget(module.rectangle);
+        }
+      });
+    });
 
-    this._allyProjectiles.push(...newProjectiles);
-    this.statistics.addShots(newProjectiles.length);
-  }
-
-  public update(ms: number): void {
-    this._msFromStart += ms;
-
-    this.moveProjectiles(ms);
-    this.requestForSpawEnemyProjectiles(ms);
+    this._enemyProjectiles = this._enemyProjectiles
+      .filter((projectile) => !enemyProjectilesToClear.includes(projectile));
   }
 
   private moveProjectiles(ms: number): void {

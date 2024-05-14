@@ -15,4 +15,8 @@ export class BaseModule {
   constructor(rectangle: Rectangle) {
     this._rectangle = rectangle;
   }
+
+  public destroy(): void {
+    this._destroyed = true;
+  }
 }

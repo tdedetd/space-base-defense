@@ -36,4 +36,8 @@ export class Base {
       height: maxY - minY,
     };
   }
+
+  public getUndestroyedModules(): BaseModule[] {
+    return this._modules.filter(({ destroyed }) => !destroyed);
+  }
 }

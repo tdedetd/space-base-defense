@@ -3,6 +3,7 @@ import { Rectangle } from '../models/geometry/rectangle.interface';
 import { BlasterProjectile } from '../projectile/blaster-projectile';
 import { BlasterProjectileCharacteristics } from '../projectile/models/blaster-projectile-characteristics.type';
 import { Random } from '../utils/random';
+import { removeElementFromArray } from '../utils/remove-element-from-array';
 import { toRadians } from '../utils/to-radians';
 import { ProjectilesSpawnFrequencyFunction } from './models/projectiles-spawn-frequency-function';
 
@@ -61,6 +62,10 @@ export class EnemyProjectileSpawner {
     ) : null;
   }
 
+  public removeTarget(target: Rectangle): void {
+    this._targets = removeElementFromArray(this._targets, target);
+  }
+
   public setBorders(borders: Rectangle): void {
     if (borders.width < 0 || borders.height < 0) {
       throw new Error(`Rectangle has negative sizes (${borders.width}; ${borders.height})`);
@@ -69,10 +74,19 @@ export class EnemyProjectileSpawner {
   }
 
   private getTargetPosition(): Point {
-    const target = this.targets[Random.integer(this.targets.length)];
-    return {
-      x: Random.interval(target.x, target.x + target.width),
-      y: Random.interval(target.y, target.y + target.height)
-    };
+    if (this.targets.length) {
+      const target = this.targets[Random.integer(this.targets.length)];
+      return {
+        x: Random.interval(target.x, target.x + target.width),
+        y: Random.interval(target.y, target.y + target.height)
+      };
+    } else if (this.borders) {
+      return {
+        x: Random.interval(this.borders.x, this.borders.x + this.borders.width),
+        y: 0
+      }
+    } else {
+      return { x: 0, y: 0 };
+    }
   }
 }
