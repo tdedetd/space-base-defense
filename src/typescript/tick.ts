@@ -17,6 +17,7 @@ export class Tick {
       if (this.gameRenderer) {
         if (!this.gameRenderer.pause) {
           this.gameRenderer.game.update(diffMs);
+          this.gameRenderer.game.checkProjectilesIntersections();
         }
         this.gameRenderer.render();
       }

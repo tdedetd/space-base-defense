@@ -48,16 +48,17 @@ export class Debug {
     this.renderInfoLine(3, `Ally projectiles: ${game.allyProjectiles.length}`);
     this.renderInfoLine(4, `Enemy projectiles: ${game.enemyProjectiles.length}`);
     this.renderInfoLine(5, `Paused: ${pause}`);
-    this.renderInfoLine(6, `Projectiles frequency: ${(game.currentProjectilesSpawnFrequency).toFixed(3)} per second`);
+    this.renderInfoLine(6, `Projectiles frequency: ${(game.currentProjectilesSpawnFrequency).toFixed(2)} per second`);
     this.renderInfoLine(7, [
       'Actual projectiles frequency:',
-      String((game.statistics.enemyProjectiles / game.msFromStart * 1000).toFixed(3)),
+      String((game.statistics.enemyProjectiles / game.msFromStart * 1000).toFixed(2)),
       'per second'
     ].join(' '));
 
     this.renderInfoLine(9, '------ Game statistics ------');
     this.renderInfoLine(10, `Shots: ${game.statistics.shots}`);
-    this.renderInfoLine(11, `Enemy projectiles: ${game.statistics.enemyProjectiles}`);
+    this.renderInfoLine(11, `Hits: ${game.statistics.hits}`);
+    this.renderInfoLine(12, `Enemy projectiles: ${game.statistics.enemyProjectiles}`);
   }
 
   private renderSceneBounds(): void {

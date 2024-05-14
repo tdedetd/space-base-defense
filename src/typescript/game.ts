@@ -1,3 +1,4 @@
+import { checkIntersection } from 'line-intersect';
 import { Base } from './base/base';
 import { BaseModule } from './base/base-module';
 import { Cannon } from './cannon/cannon';
@@ -130,6 +131,34 @@ export class Game {
     projectiles.forEach(projectile => {
       projectile.move(ms);
     });
+  }
+
+  public checkProjectilesIntersections(): void {
+    const allyProjectilesToClear: BlasterProjectile[] = [];
+    const enemyProjectilesToClear: BlasterProjectile[] = [];
+
+    this.allyProjectiles.forEach((allyProjectile) => {
+      this.enemyProjectiles.forEach((enemyProjectile) => {
+        const line1 = allyProjectile.getLine();
+        const line2 = enemyProjectile.getLine();
+
+        if (checkIntersection(
+          line1[0].x, line1[0].y, line1[1].x, line1[1].y,
+          line2[0].x, line2[0].y, line2[1].x, line2[1].y
+        ).type === 'intersecting') {
+          allyProjectilesToClear.push(allyProjectile);
+          enemyProjectilesToClear.push(enemyProjectile);
+        }
+      });
+    });
+
+    this._allyProjectiles = this._allyProjectiles
+      .filter((projectile) => !allyProjectilesToClear.includes(projectile));
+
+    this._enemyProjectiles = this._enemyProjectiles
+      .filter((projectile) => !enemyProjectilesToClear.includes(projectile));
+
+    this.statistics.addHits(allyProjectilesToClear.length);
   }
 
   public clearProjectilesOutside(borders: Rectangle): void {

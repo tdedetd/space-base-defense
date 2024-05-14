@@ -38,5 +38,8 @@
     "webpack-dev-server": "^5.0.4",
     "webpack-merge": "^5.10.0",
     "webpack-remove-empty-scripts": "^1.0.4"
+  },
+  "dependencies": {
+    "line-intersect": "^3.0.0"
   }
 }
