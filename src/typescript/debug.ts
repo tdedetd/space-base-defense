@@ -2,9 +2,10 @@ import { Game } from './game';
 import { Measures } from './measures';
 import { Point } from './models/geometry/point.intarface';
 import { Rectangle } from './models/geometry/rectangle.interface';
+import { formatPoint } from './utils/format-point';
 
 export class Debug {
-  private readonly fontSize = 16;
+  private readonly fontSize = 14;
   private readonly lineSpacing = 8;
   private readonly fontStyle: string;
   private readonly hitboxColor = 'rgba(255, 255, 255, 0.5)';
@@ -40,25 +41,23 @@ export class Debug {
     this.ctx.fillStyle = 'white';
     this.ctx.letterSpacing = '1px';
     this.ctx.font = this.fontStyle;
-    this.ctx.fillText(
-      `Ally projectiles: ${game.allyProjectiles.length}`, 10, this.fontSize + this.lineSpacing
-    );
-    this.ctx.fillText(
-      `Enemy projectiles: ${game.enemyProjectiles.length}`, 10, (this.fontSize + this.lineSpacing) * 2
-    );
-    this.ctx.fillText(
-      `Paused: ${pause}`, 10, (this.fontSize + this.lineSpacing) * 3
-    );
 
-    const activeScenePositionStr = activeScenePosition
-      ? `(${activeScenePosition.x.toFixed(2)}; ${activeScenePosition.y.toFixed(2)})` : '-';
-    this.ctx.fillText(
-      `Active position: ${activeScenePositionStr}`, 10, (this.fontSize + this.lineSpacing) * 4
-    );
+    const activeScenePositionStr = activeScenePosition ? formatPoint(activeScenePosition, 2) : '-';
+    this.renderInfoLine(1, `Active position: ${activeScenePositionStr}`);
+    this.renderInfoLine(2, `Time: ${(game.msFromStart / 1000).toFixed(0)}s`);
+    this.renderInfoLine(3, `Ally projectiles: ${game.allyProjectiles.length}`);
+    this.renderInfoLine(4, `Enemy projectiles: ${game.enemyProjectiles.length}`);
+    this.renderInfoLine(5, `Paused: ${pause}`);
+    this.renderInfoLine(6, `Projectiles frequency: ${(game.currentProjectilesSpawnFrequency).toFixed(3)} per second`);
+    this.renderInfoLine(7, [
+      'Actual projectiles frequency:',
+      String((game.statistics.enemyProjectiles / game.msFromStart * 1000).toFixed(3)),
+      'per second'
+    ].join(' '));
 
-    this.ctx.fillText(
-      `Time: ${(game.msFromStart / 1000).toFixed(0)}s`, 10, (this.fontSize + this.lineSpacing) * 5
-    );
+    this.renderInfoLine(9, '------ Game statistics ------');
+    this.renderInfoLine(10, `Shots: ${game.statistics.shots}`);
+    this.renderInfoLine(11, `Enemy projectiles: ${game.statistics.enemyProjectiles}`);
   }
 
   private renderSceneBounds(): void {
@@ -69,5 +68,12 @@ export class Debug {
       this.measures.sceneWidthPx,
       this.measures.sceneHeightPx
     );
+  }
+
+  private renderInfoLine(line: number, text: string): void {
+    this.ctx.fillStyle = 'white';
+    this.ctx.letterSpacing = '1px';
+    this.ctx.font = this.fontStyle;
+    this.ctx.fillText(text, 10, (this.fontSize + this.lineSpacing) * line);
   }
 }

@@ -2,6 +2,7 @@ import { Base } from './base/base';
 import { BaseModule } from './base/base-module';
 import { Cannon } from './cannon/cannon';
 import { EnemyProjectileSpawner } from './enemy-projectile-spawner/enemy-projectile-spawner';
+import { GameStatistics } from './game-statistics';
 import { Rectangle } from './models/geometry/rectangle.interface';
 import { BlasterProjectile } from './projectile/blaster-projectile';
 import { Projectile } from './projectile/projectile';
@@ -13,6 +14,7 @@ export class Game {
   private _allyProjectiles: BlasterProjectile[] = [];
   private _enemyProjectiles: BlasterProjectile[] = [];
   private _enemyProjectileSpawner: EnemyProjectileSpawner;
+  private _statistics = new GameStatistics();
 
   private _cannons: Cannon[] = [
     new Cannon({
@@ -88,6 +90,14 @@ export class Game {
     return this.base.modules;
   }
 
+  public get currentProjectilesSpawnFrequency(): number {
+    return this.enemyProjectilesSpawner.getCurrentSpawnFrequency(this.msFromStart);
+  }
+
+  public get statistics(): GameStatistics {
+    return this._statistics;
+  }
+
   constructor() {
     this._enemyProjectileSpawner = new EnemyProjectileSpawner(
       this.base.modules.map(({ rectangle }) => rectangle),
@@ -133,20 +143,26 @@ export class Game {
     }, []);
 
     this._allyProjectiles.push(...newProjectiles);
+    this.statistics.addShots(newProjectiles.length);
   }
 
   public update(ms: number): void {
     this._msFromStart += ms;
 
     this.moveProjectiles(ms);
-    const newEnemyProjectiles = this._enemyProjectileSpawner.requestForSpawn(ms, this._msFromStart);
-    if (newEnemyProjectiles) {
-      this._enemyProjectiles.push(...newEnemyProjectiles);
-    }
+    this.requestForSpawEnemyProjectiles(ms);
   }
 
   private moveProjectiles(ms: number): void {
     Game.moveProjectilesGroup(this._allyProjectiles, ms);
     Game.moveProjectilesGroup(this._enemyProjectiles, ms);
+  }
+
+  private requestForSpawEnemyProjectiles(ms: number): void {
+    const newEnemyProjectiles = this._enemyProjectileSpawner.requestForSpawn(ms, this._msFromStart);
+    if (newEnemyProjectiles) {
+      this._enemyProjectiles.push(...newEnemyProjectiles);
+      this.statistics.addEnemyProjectiles(newEnemyProjectiles.length);
+    }
   }
 }

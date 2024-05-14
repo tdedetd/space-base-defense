@@ -7,6 +7,7 @@ import { toRadians } from '../utils/to-radians';
 import { ProjectilesSpawnFrequencyFunction } from './models/projectiles-spawn-frequency-function';
 
 export class EnemyProjectileSpawner {
+  private readonly _frequency: number | ProjectilesSpawnFrequencyFunction;
   private _targets: Rectangle[];
   private borders: Rectangle | null = null;
 
@@ -19,10 +20,18 @@ export class EnemyProjectileSpawner {
    */
   constructor(
     targets: Rectangle[],
-    private frequency: number | ProjectilesSpawnFrequencyFunction,
+    frequency: number | ProjectilesSpawnFrequencyFunction,
     private projectileOptions: BlasterProjectileCharacteristics,
   ) {
+    this._frequency = frequency;
     this._targets = targets;
+  }
+
+  public getCurrentSpawnFrequency(msFromStart: number): number {
+    return Math.max(
+      typeof this._frequency === 'number' ? this._frequency : this._frequency(msFromStart),
+      0
+    );
   }
 
   public requestForSpawn(diffMs: number, msFromStart: number): BlasterProjectile[] | null {
@@ -30,7 +39,8 @@ export class EnemyProjectileSpawner {
       return null;
     }
 
-    const frequency = typeof this.frequency === 'number' ? this.frequency : this.frequency(msFromStart);
+    const frequency = this.getCurrentSpawnFrequency(msFromStart);
+
     const msForOneProjectile = 1000 / frequency;
     let baseCount = Math.floor(diffMs / msForOneProjectile);
 
