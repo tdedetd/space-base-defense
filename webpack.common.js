@@ -1,7 +1,5 @@
 const path = require('path');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const RemoveEmptyScriptsPlugin = require('webpack-remove-empty-scripts');
+const HtmlBundlerPlugin = require('html-bundler-webpack-plugin');
 const glob = require('glob');
 const { PurgeCSSPlugin } = require('purgecss-webpack-plugin');
 
@@ -9,13 +7,8 @@ const isProduction = process.env.NODE_ENV === 'production';
 
 module.exports = {
   context: path.resolve(__dirname, 'src'),
-  entry: {
-    main: './typescript/index.ts',
-    styles: './scss/index.scss'
-  },
   output: {
     path: path.resolve(__dirname, 'dist'),
-    filename: '[name].[fullhash].js'
   },
   resolve: {
     extensions: ['.js', '.ts'],
@@ -62,30 +55,25 @@ module.exports = {
       {
         test: /\.scss$/,
         use: [
-          {
-            loader: MiniCssExtractPlugin.loader,
-            options: {
-              publicPath: '/'
-            }
-          },
           'css-loader',
           'sass-loader'
         ]
       },
-      {
-        test: /\.html$/,
-        use: 'html-loader'
-      }
     ]
   },
   plugins: [
-    new HtmlWebpackPlugin({
-      template: './index.html',
+    new HtmlBundlerPlugin({
+      entry: {
+        // entrypoint is a template file containing SCSS and TS files
+        index: './index.html', // => dist/index.html
+      },
+      js: {
+        filename: '[name].[contenthash:8].js', // JS output name
+      },
+      css: {
+        filename: '[name].[contenthash:8].css', // CSS output name
+      },
     }),
-    new MiniCssExtractPlugin({
-      filename: '[name].[fullhash].css',
-    }),
-    new RemoveEmptyScriptsPlugin(),
     new PurgeCSSPlugin({
       paths: glob.sync(`${path.resolve(__dirname, 'src')}/**/*`, { nodir: true }),
     }),
