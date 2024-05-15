@@ -1,4 +1,4 @@
-import { GameRenderer } from './game-renderer';
+import { GameRenderer } from './render/game-renderer';
 
 export class Tick {
   private gameRenderer: GameRenderer | null = null;

@@ -1,17 +1,20 @@
-import { BaseModule } from './base/base-module';
-import { Cannon } from './cannon/cannon';
-import { Debug } from './debug';
-import { Game } from './game';
-import { Measures } from './measures';
-import { Point } from './models/geometry/point.intarface';
-import { Rectangle } from './models/geometry/rectangle.interface';
-import { ProjectileDespawner } from './projectile-despawner';
-import { BlasterProjectile } from './projectile/blaster-projectile';
-import { CoordinateSystemConverter } from './utils/coordinate-system-converter.class';
+import { BaseModule } from '../base/base-module';
+import { Cannon } from '../cannon/cannon';
+import { DebugRenderer } from './debug-renderer';
+import { Game } from '../game';
+import { Measures } from '../measures';
+import { Point } from '../models/geometry/point.intarface';
+import { Rectangle } from '../models/geometry/rectangle.interface';
+import { ProjectileDespawner } from '../projectile-despawner';
+import { BlasterProjectile } from '../projectile/blaster-projectile';
+import { CoordinateSystemConverter } from '../utils/coordinate-system-converter.class';
+import { UiRenderer } from './ui-renderer';
 
 export class GameRenderer {
+  private readonly debugRenderer: DebugRenderer;
+  private readonly uiRenderer: UiRenderer;
+
   private displayDebug = true;
-  private readonly debug: Debug;
   private readonly despawner: ProjectileDespawner;
   private readonly _game: Game;
   private _pause = false;
@@ -39,7 +42,9 @@ export class GameRenderer {
     }
     this.ctx = ctx;
     this._game = game;
-    this.debug = new Debug(ctx, this.measures);
+
+    this.debugRenderer = new DebugRenderer(ctx, this.measures);
+    this.uiRenderer = new UiRenderer(ctx, this.measures);
 
     this.despawner = new ProjectileDespawner(this._game);
     this.despawner.run();
@@ -52,10 +57,11 @@ export class GameRenderer {
     this.renderBlasterProjectiles(this._game.allyProjectiles);
     this.renderBaseModules(this._game.baseModules);
     this.renderCannons(this._game.cannons);
-    this.renderCannonsReloadingScales(this._game.cannons, this._game.timestamp);
+
+    this.uiRenderer.render(this._game);
 
     if (this.displayDebug) {
-      this.debug.render(this._game, this.activeScenePosition, this._pause);
+      this.debugRenderer.render(this._game, this.activeScenePosition, this._pause);
     }
   }
 
@@ -142,37 +148,6 @@ export class GameRenderer {
       this.ctx.moveTo(point1Px.x, point1Px.y);
       this.ctx.lineTo(point2Px.x, point2Px.y);
       this.ctx.stroke();
-    });
-  }
-
-  private renderCannonsReloadingScales(cannons: Cannon[], timestamp: number): void {
-    const width = 100;
-    const height = 10;
-    const padding = 2;
-    const ySpacing = 20;
-    const color = 'rgba(255, 255, 255, 0.25)';
-
-    this.ctx.strokeStyle = color;
-    this.ctx.fillStyle = color;
-
-    cannons.forEach((cannon) => {
-      const reloadingState = cannon.getReloadingState(timestamp);
-      if (reloadingState.status === 'reloading') {
-        const positionPx = this.measures.convertPointToPx(cannon.position);
-        this.ctx.strokeRect(
-          positionPx.x - width / 2,
-          positionPx.y + ySpacing,
-          width,
-          height
-        );
-
-        this.ctx.fillRect(
-          positionPx.x - width / 2 + padding,
-          positionPx.y + ySpacing + padding,
-          (width - padding * 2) * reloadingState.progress,
-          height - padding * 2
-        );
-      }
     });
   }
 }

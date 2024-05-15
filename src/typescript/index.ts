@@ -1,5 +1,5 @@
 import { Game } from './game';
-import { GameRenderer } from './game-renderer';
+import { GameRenderer } from './render/game-renderer';
 import { DomEventsOptions } from './models/dom-events-options.interface';
 import { Tick } from './tick';
 

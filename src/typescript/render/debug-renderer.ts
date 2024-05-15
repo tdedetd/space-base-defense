@@ -1,10 +1,10 @@
-import { Game } from './game';
-import { Measures } from './measures';
-import { Point } from './models/geometry/point.intarface';
-import { Rectangle } from './models/geometry/rectangle.interface';
-import { formatPoint } from './utils/format-point';
+import { Game } from '../game';
+import { Measures } from '../measures';
+import { Point } from '../models/geometry/point.intarface';
+import { Rectangle } from '../models/geometry/rectangle.interface';
+import { formatPoint } from '../utils/format-point';
 
-export class Debug {
+export class DebugRenderer {
   private readonly fontSize = 14;
   private readonly lineSpacing = 8;
   private readonly fontStyle: string;
@@ -17,11 +17,7 @@ export class Debug {
     this.fontStyle = `${this.fontSize}px sans-serif`;
   }
 
-  public render(
-    game: Game,
-    activeScenePosition: Point | null,
-    pause: boolean
-  ): void {
+  public render(game: Game, activeScenePosition: Point | null, pause: boolean): void {
     this.renderSceneBounds();
     this.renderBaseHitbox(game.base.getBorders());
     this.renderDebugInfo(game, activeScenePosition, pause);
