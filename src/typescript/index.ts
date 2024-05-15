@@ -19,9 +19,11 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
   const domEventsOptions: DomEventsOptions = { container, game, gameRenderer };
   const uiFunctions: ((domEventsOptions: DomEventsOptions) => void)[] = [
-    containerOnClick,
+    containerOnMousedown,
+    containerOnMouseup,
     containerOnMousemove,
     windowOnKeydown,
+    windowOnKeyup,
     windowOnResize
   ];
 
@@ -36,10 +38,19 @@ document.addEventListener('DOMContentLoaded', (event) => {
   tick.setGameRenderer(gameRenderer);
 });
 
-function containerOnClick({ container, gameRenderer, game }: DomEventsOptions): void {
-  container.addEventListener('click', () => {
-    if (!gameRenderer.pause) {
+function containerOnMousedown({ container, game, gameRenderer }: DomEventsOptions): void {
+  container.addEventListener('mousedown', (event) => {
+    if (event.button === 0 && !gameRenderer.pause) {
       game.fire();
+      game.activateCannons();
+    }
+  });
+}
+
+function containerOnMouseup({ container, game }: DomEventsOptions): void {
+  container.addEventListener('mouseup', (event) => {
+    if (event.button === 0) {
+      game.deactivateCannons();
     }
   });
 }
@@ -53,10 +64,8 @@ function containerOnMousemove({ container, gameRenderer }: DomEventsOptions): vo
 
 function windowOnKeydown({ gameRenderer, game }: DomEventsOptions): void {
   window.addEventListener('keydown', (event) => {
-    if (['f', 'а'].includes(event.key.toLowerCase())) {
-      if (!gameRenderer.pause) {
-        game.fire();
-      }
+    if (['f', 'а'].includes(event.key.toLowerCase()) && !gameRenderer.pause) {
+      game.activateCannons();
     }
 
     if (['d', 'в'].includes(event.key.toLowerCase())) {
@@ -69,6 +78,14 @@ function windowOnKeydown({ gameRenderer, game }: DomEventsOptions): void {
       if (!gameRenderer.pause) {
         gameRenderer.updateCannonRotation();
       }
+    }
+  });
+}
+
+function windowOnKeyup({ game }: DomEventsOptions): void {
+  window.addEventListener('keyup', (event) => {
+    if (['f', 'а'].includes(event.key.toLowerCase())) {
+      game.deactivateCannons();
     }
   });
 }

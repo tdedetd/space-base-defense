@@ -28,19 +28,19 @@ export class EnemyProjectileSpawner {
     this._targets = targets;
   }
 
-  public getCurrentSpawnFrequency(msFromStart: number): number {
+  public getCurrentSpawnFrequency(timestamp: number): number {
     return Math.max(
-      typeof this._frequency === 'number' ? this._frequency : this._frequency(msFromStart),
+      typeof this._frequency === 'number' ? this._frequency : this._frequency(timestamp),
       0
     );
   }
 
-  public requestForSpawn(diffMs: number, msFromStart: number): BlasterProjectile[] | null {
-    if (msFromStart < 0 || !this.borders) {
+  public requestForSpawn(diffMs: number, timestamp: number): BlasterProjectile[] | null {
+    if (timestamp < 0 || !this.borders) {
       return null;
     }
 
-    const frequency = this.getCurrentSpawnFrequency(msFromStart);
+    const frequency = this.getCurrentSpawnFrequency(timestamp);
 
     const msForOneProjectile = 1000 / frequency;
     let baseCount = Math.floor(diffMs / msForOneProjectile);

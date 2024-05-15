@@ -1,1 +1,1 @@
-export type ProjectilesSpawnFrequencyFunction = (msFromStart: number) => number;
+export type ProjectilesSpawnFrequencyFunction = (timestamp: number) => number;

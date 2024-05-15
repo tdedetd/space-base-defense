@@ -11,7 +11,7 @@ import { isPointInsideIntervals } from './utils/is-point-inside-intervals';
 import { toRadians } from './utils/to-radians';
 
 export class Game {
-  private _msFromStart = 0;
+  private _timestamp = 0;
   private _allyProjectiles: BlasterProjectile[] = [];
   private _enemyProjectiles: BlasterProjectile[] = [];
   private _enemyProjectileSpawner: EnemyProjectileSpawner;
@@ -22,7 +22,7 @@ export class Game {
       barrelLength: 30,
       rotationRadians: toRadians(45),
       position: { x: 100, y: 100 },
-      reloadingTimeMs: 2000,
+      reloadingMs: 500,
       projectileOptions: {
         speed: 1000,
         color: 'rgb(0, 255, 0)',
@@ -33,7 +33,7 @@ export class Game {
       barrelLength: 30,
       rotationRadians: toRadians(135),
       position: { x: 900, y: 100 },
-      reloadingTimeMs: 2000,
+      reloadingMs: 500,
       projectileOptions: {
         speed: 1000,
         color: 'rgb(0, 255, 0)',
@@ -41,6 +41,7 @@ export class Game {
       },
     }),
   ];
+  private _cannonsAreActive = false;
 
   private _base = new Base([
     new BaseModule({
@@ -63,8 +64,8 @@ export class Game {
     }),
   ]);
 
-  public get msFromStart(): number {
-    return this._msFromStart;
+  public get timestamp(): number {
+    return this._timestamp;
   }
 
   public get allyProjectiles(): BlasterProjectile[] {
@@ -83,6 +84,10 @@ export class Game {
     return this._cannons;
   }
 
+  public get cannonsAreActive(): boolean {
+    return this._cannonsAreActive;
+  }
+
   public get base(): Base {
     return this._base;
   }
@@ -92,7 +97,7 @@ export class Game {
   }
 
   public get currentProjectilesSpawnFrequency(): number {
-    return this.enemyProjectilesSpawner.getCurrentSpawnFrequency(this.msFromStart);
+    return this.enemyProjectilesSpawner.getCurrentSpawnFrequency(this.timestamp);
   }
 
   public get statistics(): GameStatistics {
@@ -133,14 +138,30 @@ export class Game {
     });
   }
 
+  public activateCannons(): void {
+    this._cannonsAreActive = true;
+  }
+
   public clearProjectilesOutside(borders: Rectangle): void {
     this._allyProjectiles = Game.getBlasterProjectilesInside(borders, this._allyProjectiles);
     this._enemyProjectiles = Game.getBlasterProjectilesInside(borders, this._enemyProjectiles);
   }
 
+  public deactivateCannons(): void {
+    this._cannonsAreActive = false;
+  }
+
   public fire(): void {
     const newProjectiles = this._cannons.reduce<BlasterProjectile[]>((acc, cannon) => {
-      return [...acc, cannon.fire()];
+      try {
+        return [...acc, cannon.tryToFire(this.timestamp)];
+      } catch (error) {
+        if (error instanceof Error && error.name === 'FireWhileReloadingCannonError') {
+          return acc;
+        }
+
+        throw error;
+      }
     }, []);
 
     this._allyProjectiles.push(...newProjectiles);
@@ -148,13 +169,17 @@ export class Game {
   }
 
   public update(ms: number): void {
-    this._msFromStart += ms;
+    this._timestamp += ms;
 
     this.moveProjectiles(ms);
     this.requestForSpawEnemyProjectiles(ms);
 
     this.checkProjectilesIntersections();
     this.checkBaseModuleIntersections();
+
+    if (this._cannonsAreActive) {
+      this.fire();
+    }
   }
 
   private checkProjectilesIntersections(): void {
@@ -216,7 +241,7 @@ export class Game {
   }
 
   private requestForSpawEnemyProjectiles(ms: number): void {
-    const newEnemyProjectiles = this._enemyProjectileSpawner.requestForSpawn(ms, this._msFromStart);
+    const newEnemyProjectiles = this._enemyProjectileSpawner.requestForSpawn(ms, this._timestamp);
     if (newEnemyProjectiles) {
       this._enemyProjectiles.push(...newEnemyProjectiles);
       this.statistics.addEnemyProjectiles(newEnemyProjectiles.length);

@@ -52,13 +52,10 @@ export class GameRenderer {
     this.renderBlasterProjectiles(this._game.allyProjectiles);
     this.renderBaseModules(this._game.baseModules);
     this.renderCannons(this._game.cannons);
+    this.renderCannonsReloadingScales(this._game.cannons, this._game.timestamp);
 
     if (this.displayDebug) {
-      this.debug.render(
-        this._game,
-        this.activeScenePosition,
-        this._pause
-      );
+      this.debug.render(this._game, this.activeScenePosition, this._pause);
     }
   }
 
@@ -145,6 +142,37 @@ export class GameRenderer {
       this.ctx.moveTo(point1Px.x, point1Px.y);
       this.ctx.lineTo(point2Px.x, point2Px.y);
       this.ctx.stroke();
+    });
+  }
+
+  private renderCannonsReloadingScales(cannons: Cannon[], timestamp: number): void {
+    const width = 100;
+    const height = 10;
+    const padding = 2;
+    const ySpacing = 20;
+    const color = 'rgba(255, 255, 255, 0.25)';
+
+    this.ctx.strokeStyle = color;
+    this.ctx.fillStyle = color;
+
+    cannons.forEach((cannon) => {
+      const reloadingState = cannon.getReloadingState(timestamp);
+      if (reloadingState.status === 'reloading') {
+        const positionPx = this.measures.convertPointToPx(cannon.position);
+        this.ctx.strokeRect(
+          positionPx.x - width / 2,
+          positionPx.y + ySpacing,
+          width,
+          height
+        );
+
+        this.ctx.fillRect(
+          positionPx.x - width / 2 + padding,
+          positionPx.y + ySpacing + padding,
+          (width - padding * 2) * reloadingState.progress,
+          height - padding * 2
+        );
+      }
     });
   }
 }

@@ -5,6 +5,6 @@ export interface CannonOptions {
   barrelLength: number;
   position: Point;
   projectileOptions: BlasterProjectileCharacteristics;
-  reloadingTimeMs: number;
+  reloadingMs: number;
   rotationRadians?: number
 }

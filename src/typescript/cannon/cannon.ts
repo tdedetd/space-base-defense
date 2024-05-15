@@ -3,14 +3,17 @@ import { BlasterProjectile } from '../projectile/blaster-projectile';
 import { BlasterProjectileCharacteristics } from '../projectile/models/blaster-projectile-characteristics.type';
 import { CoordinateSystemConverter } from '../utils/coordinate-system-converter.class';
 import { toRadians } from '../utils/to-radians';
+import { FireWhileReloadingCannonError } from './errors/fire-while-reloading-cannon-error';
 import { CannonOptions } from './models/cannon-options.interface';
+import { ReloadingState } from './models/reloading-state.type';
 
 export class Cannon {
   private _rotationRadians: number;
   private readonly _barrelLength: number;
   private readonly _position: Point;
   private readonly _projectileOptions: BlasterProjectileCharacteristics;
-  private readonly _reloadingTimeMs: number;
+  private readonly _reloadingMs: number;
+  private lastShotTimestamp = 0;
 
   public get barrelLength(): number {
     return this._barrelLength;
@@ -29,16 +32,36 @@ export class Cannon {
     barrelLength,
     position,
     projectileOptions,
-    reloadingTimeMs
+    reloadingMs
   }: CannonOptions) {
     this._position = position;
     this._rotationRadians = rotationRadians ?? toRadians(45);
     this._barrelLength = barrelLength;
     this._projectileOptions = projectileOptions;
-    this._reloadingTimeMs = reloadingTimeMs;
+    this._reloadingMs = reloadingMs;
   }
 
-  public fire(): BlasterProjectile {
+  public getReloadingState(timestamp: number): ReloadingState {
+    if (this.lastShotTimestamp + this._reloadingMs > timestamp) {
+      return {
+        status: 'reloading',
+        progress: (timestamp - this.lastShotTimestamp) / this._reloadingMs
+      };
+    } else {
+      return { status: 'ready' };
+    }
+  }
+
+  public setRotation(radians: number): void {
+    this._rotationRadians = radians;
+  }
+
+  public tryToFire(timestamp: number): BlasterProjectile {
+    if (this.getReloadingState(timestamp).status === 'reloading') {
+      throw new FireWhileReloadingCannonError();
+    }
+
+    this.lastShotTimestamp = timestamp;
     return new BlasterProjectile({
       ...this._projectileOptions,
       direction: 'fromCenter',
@@ -51,9 +74,5 @@ export class Cannon {
         this._position
       ),
     });
-  }
-
-  public setRotation(radians: number): void {
-    this._rotationRadians = radians;
   }
 }

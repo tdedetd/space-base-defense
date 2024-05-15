@@ -44,14 +44,14 @@ export class Debug {
 
     const activeScenePositionStr = activeScenePosition ? formatPoint(activeScenePosition, 2) : '-';
     this.renderInfoLine(1, `Active position: ${activeScenePositionStr}`);
-    this.renderInfoLine(2, `Time: ${(game.msFromStart / 1000).toFixed(0)}s`);
+    this.renderInfoLine(2, `Time: ${(game.timestamp / 1000).toFixed(0)}s`);
     this.renderInfoLine(3, `Ally projectiles: ${game.allyProjectiles.length}`);
     this.renderInfoLine(4, `Enemy projectiles: ${game.enemyProjectiles.length}`);
     this.renderInfoLine(5, `Paused: ${pause}`);
     this.renderInfoLine(6, `Projectiles frequency: ${(game.currentProjectilesSpawnFrequency).toFixed(2)} per second`);
     this.renderInfoLine(7, [
       'Actual projectiles frequency:',
-      String((game.statistics.enemyProjectiles / game.msFromStart * 1000).toFixed(2)),
+      String((game.statistics.enemyProjectiles / game.timestamp * 1000).toFixed(2)),
       'per second'
     ].join(' '));
 
