@@ -1,4 +1,3 @@
-import { checkIntersection } from 'line-intersect';
 import { Base } from './base/base';
 import { BaseModule } from './base/base-module';
 import { Cannon } from './cannon/cannon';
@@ -188,13 +187,9 @@ export class Game {
 
     this.allyProjectiles.forEach((allyProjectile) => {
       this.enemyProjectiles.forEach((enemyProjectile) => {
-        const line1 = allyProjectile.getLine();
-        const line2 = enemyProjectile.getLine();
+        const enemyProjectileLine = enemyProjectile.getLine();
 
-        if (checkIntersection(
-          line1[0].x, line1[0].y, line1[1].x, line1[1].y,
-          line2[0].x, line2[0].y, line2[1].x, line2[1].y
-        ).type === 'intersecting') {
+        if (allyProjectile.intersects(enemyProjectileLine)) {
           allyProjectilesToClear.push(allyProjectile);
           enemyProjectilesToClear.push(enemyProjectile);
         }
@@ -212,23 +207,18 @@ export class Game {
 
   private checkBaseModuleIntersections(): void {
     const enemyProjectilesToClear: BlasterProjectile[] = [];
+    const baseRectangle = this.base.getBorders();
 
     this._enemyProjectiles.forEach((enemyProjectile) => {
-      this.base.getUndestroyedModules().forEach((module) => {
-        const line = enemyProjectile.getLine();
-        const xMin = module.rectangle.x;
-        const yMin = module.rectangle.y;
-        const xMax = module.rectangle.x + module.rectangle.width;
-        const yMax = module.rectangle.y + module.rectangle.height;
-        if (
-          isPointInsideIntervals(line[0], xMin, xMax, yMin, yMax)
-          || isPointInsideIntervals(line[0], xMin, xMax, yMin, yMax)
-        ) {
-          module.destroy();
-          enemyProjectilesToClear.push(enemyProjectile);
-          this.enemyProjectilesSpawner.removeTarget(module.rectangle);
-        }
-      });
+      if (enemyProjectile.intersects(baseRectangle)) {
+        this.base.getUndestroyedModules().forEach((module) => {
+          if (enemyProjectile.intersects(module.rectangle)) {
+            module.destroy();
+            enemyProjectilesToClear.push(enemyProjectile);
+            this.enemyProjectilesSpawner.removeTarget(module.rectangle);
+          }
+        });
+      }
     });
 
     this._enemyProjectiles = this._enemyProjectiles

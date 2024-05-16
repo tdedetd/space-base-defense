@@ -1,3 +1,4 @@
+import { Line } from '../models/geometry/line.type';
 import { PointPolar } from '../models/geometry/point-polar.interface';
 import { Point } from '../models/geometry/point.intarface';
 import { Rectangle } from '../models/geometry/rectangle.interface';
@@ -46,7 +47,7 @@ export abstract class Projectile {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public intersects(hitBox: Rectangle): boolean {
+  public intersects(figure: Line | Rectangle): boolean {
     throw new Error('Method is not implemented');
   }
 
