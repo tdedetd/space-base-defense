@@ -232,9 +232,7 @@ export class Game {
 
   private requestForSpawEnemyProjectiles(ms: number): void {
     const newEnemyProjectiles = this._enemyProjectileSpawner.requestForSpawn(ms, this._timestamp);
-    if (newEnemyProjectiles) {
-      this._enemyProjectiles.push(...newEnemyProjectiles);
-      this.statistics.addEnemyProjectiles(newEnemyProjectiles.length);
-    }
+    this._enemyProjectiles.push(...newEnemyProjectiles);
+    this.statistics.addEnemyProjectiles(newEnemyProjectiles.length);
   }
 }

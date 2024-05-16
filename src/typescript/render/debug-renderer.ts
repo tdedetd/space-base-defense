@@ -30,12 +30,22 @@ export class DebugRenderer {
     this.fpsMeter.registerFrame(msDiff);
     this.renderSceneBounds();
     this.renderBaseHitbox(game.base.getBorders());
+
+    if (game.enemyProjectilesSpawner.borders) {
+      this.renderEnemyProjectileSpawnerBorders(game.enemyProjectilesSpawner.borders);
+    }
     this.renderDebugInfo(game, activeScenePosition, pause);
   }
 
   private renderBaseHitbox(hitbox: Rectangle): void {
     this.ctx.strokeStyle = this.hitboxColor;
     const rectacangle = this.measures.convertRectangleToPx(hitbox);
+    this.ctx.strokeRect(rectacangle.x, rectacangle.y, rectacangle.width, rectacangle.height);
+  }
+
+  private renderEnemyProjectileSpawnerBorders(borders: Rectangle): void {
+    this.ctx.strokeStyle = this.hitboxColor;
+    const rectacangle = this.measures.convertRectangleToPx(borders);
     this.ctx.strokeRect(rectacangle.x, rectacangle.y, rectacangle.width, rectacangle.height);
   }
 
