@@ -50,7 +50,7 @@ export class GameRenderer {
     this.despawner.run();
   }
 
-  public render(): void {
+  public render(msDiff: number): void {
     this.clearScene();
 
     this.renderBlasterProjectiles(this._game.enemyProjectiles);
@@ -61,7 +61,7 @@ export class GameRenderer {
     this.uiRenderer.render(this._game);
 
     if (this.displayDebug) {
-      this.debugRenderer.render(this._game, this.activeScenePosition, this._pause);
+      this.debugRenderer.render(this._game, this.activeScenePosition, this._pause, msDiff);
     }
   }
 

@@ -18,7 +18,7 @@ export class Tick {
         if (!this.gameRenderer.pause) {
           this.gameRenderer.game.update(diffMs);
         }
-        this.gameRenderer.render();
+        this.gameRenderer.render(diffMs);
       }
 
       requestAnimationFrame(tick);
