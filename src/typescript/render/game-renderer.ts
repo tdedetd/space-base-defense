@@ -110,8 +110,8 @@ export class GameRenderer {
   }
 
   private renderBaseModules(baseModules: BaseModule[]): void {
-    baseModules.forEach((module) => {
-      this.ctx.strokeStyle = module.destroyed ? 'red' : 'white';
+    baseModules.filter(module => !module.destroyed).forEach((module) => {
+      this.ctx.strokeStyle = '#d19c13';
       const rectanglePx = this.measures.convertRectangleToPx(module.rectangle);
       this.ctx.strokeRect(rectanglePx.x, rectanglePx.y, rectanglePx.width, rectanglePx.height);
     });
@@ -143,7 +143,7 @@ export class GameRenderer {
       const point1Px = this.measures.convertPointToPx(cannon.position);
       const point2Px = this.measures.convertPointToPx(point2);
 
-      this.ctx.strokeStyle = 'white';
+      this.ctx.strokeStyle = '#d19c13';
       this.ctx.beginPath();
       this.ctx.moveTo(point1Px.x, point1Px.y);
       this.ctx.lineTo(point2Px.x, point2Px.y);

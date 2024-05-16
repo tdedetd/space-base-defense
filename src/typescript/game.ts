@@ -24,7 +24,7 @@ export class Game {
       reloadingMs: 500,
       projectileOptions: {
         speed: 1000,
-        color: 'rgb(0, 255, 0)',
+        color: '#dd8eff',
         length: 50
       },
     }),
@@ -35,7 +35,7 @@ export class Game {
       reloadingMs: 500,
       projectileOptions: {
         speed: 1000,
-        color: 'rgb(0, 255, 0)',
+        color: '#dd8eff',
         length: 50
       },
     }),
@@ -110,7 +110,7 @@ export class Game {
       {
         length: 100,
         speed: 100,
-        color: 'rgb(255, 128, 0)'
+        color: 'rgb(0, 255, 0)'
       },
     );
   }

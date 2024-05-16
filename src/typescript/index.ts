@@ -14,14 +14,20 @@ document.addEventListener('DOMContentLoaded', (event) => {
     throw new Error('container element not found');
   }
 
+  const fullscreenButton = document.querySelector<HTMLButtonElement>('#fullscreen-button');
+  if (!fullscreenButton) {
+    throw new Error('fullscreenButton element not found');
+  }
+
   const game = new Game();
   const gameRenderer = new GameRenderer(gameCanvas, game);
 
-  const domEventsOptions: DomEventsOptions = { container, game, gameRenderer };
+  const domEventsOptions: DomEventsOptions = { container, game, gameRenderer, fullscreenButton };
   const uiFunctions: ((domEventsOptions: DomEventsOptions) => void)[] = [
     containerOnMousedown,
     containerOnMouseup,
     containerOnMousemove,
+    fullscreenButtonClick,
     windowOnKeydown,
     windowOnKeyup,
     windowOnResize
@@ -59,6 +65,12 @@ function containerOnMousemove({ container, gameRenderer }: DomEventsOptions): vo
   container.addEventListener('mousemove', (event) => {
     gameRenderer.setActiveScenePosition(event.offsetX, event.offsetY);
     gameRenderer.updateCannonRotation();
+  });
+}
+
+function fullscreenButtonClick({ container, fullscreenButton }: DomEventsOptions): void {
+  fullscreenButton.addEventListener('click', (event) => {
+    container.requestFullscreen();
   });
 }
 

@@ -5,4 +5,5 @@ export interface DomEventsOptions {
   container: HTMLDivElement;
   game: Game;
   gameRenderer: GameRenderer;
+  fullscreenButton: HTMLButtonElement;
 }
