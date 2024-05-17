@@ -44,7 +44,6 @@ export class GameRenderer {
     this.uiRenderer = new UiRenderer(ctx, this.measures);
 
     this.despawner = new ProjectileDespawner(this._game);
-    this.despawner.run();
   }
 
   public render(msDiff: number): void {
@@ -60,6 +59,8 @@ export class GameRenderer {
     if (this.displayDebug) {
       this.debugRenderer.render(this._game, this.activeScenePosition, this._pause, msDiff);
     }
+
+    this.despawner.update(msDiff);
   }
 
   public toggleDisplayDebug(): void {
