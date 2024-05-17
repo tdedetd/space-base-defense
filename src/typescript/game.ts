@@ -167,11 +167,11 @@ export class Game {
     this.statistics.addShots(newProjectiles.length);
   }
 
-  public update(ms: number): void {
-    this._timestamp += ms;
+  public update(msDiff: number): void {
+    this._timestamp += msDiff;
 
-    this.moveProjectiles(ms);
-    this.requestForSpawEnemyProjectiles(ms);
+    this.moveProjectiles(msDiff);
+    this.requestSpawEnemyProjectiles(msDiff);
 
     this.checkProjectilesIntersections();
     this.checkBaseModuleIntersections();
@@ -225,13 +225,13 @@ export class Game {
       .filter((projectile) => !enemyProjectilesToClear.includes(projectile));
   }
 
-  private moveProjectiles(ms: number): void {
-    Game.moveProjectilesGroup(this._allyProjectiles, ms);
-    Game.moveProjectilesGroup(this._enemyProjectiles, ms);
+  private moveProjectiles(msDiff: number): void {
+    Game.moveProjectilesGroup(this._allyProjectiles, msDiff);
+    Game.moveProjectilesGroup(this._enemyProjectiles, msDiff);
   }
 
-  private requestForSpawEnemyProjectiles(ms: number): void {
-    const newEnemyProjectiles = this._enemyProjectileSpawner.requestForSpawn(ms, this._timestamp);
+  private requestSpawEnemyProjectiles(msDiff: number): void {
+    const newEnemyProjectiles = this._enemyProjectileSpawner.requestSpawn(msDiff, this._timestamp);
     this._enemyProjectiles.push(...newEnemyProjectiles);
     this.statistics.addEnemyProjectiles(newEnemyProjectiles.length);
   }

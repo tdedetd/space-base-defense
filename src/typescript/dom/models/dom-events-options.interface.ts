@@ -1,5 +1,5 @@
-import { Game } from '../game';
-import { GameRenderer } from '../render/game-renderer';
+import { Game } from '../../game';
+import { GameRenderer } from '../../render/game-renderer';
 
 export interface DomEventsOptions {
   container: HTMLDivElement;

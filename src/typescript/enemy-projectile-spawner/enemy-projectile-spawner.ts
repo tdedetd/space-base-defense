@@ -45,7 +45,7 @@ export class EnemyProjectileSpawner {
     );
   }
 
-  public requestForSpawn(diffMs: number, timestamp: number): BlasterProjectile[] {
+  public requestSpawn(diffMs: number, timestamp: number): BlasterProjectile[] {
     if (timestamp < 0 || !this._borders) {
       return [];
     }
@@ -137,9 +137,9 @@ export class EnemyProjectileSpawner {
       return {
         x: Random.interval(this._borders.x, this._borders.x + this._borders.width),
         y: this._borders.y + 1
-      }
-    } else {
-      return { x: 0, y: 0 };
+      };
     }
+
+    return { x: 0, y: 0 };
   }
 }

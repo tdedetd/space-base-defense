@@ -3,10 +3,6 @@ import { GameRenderer } from './render/game-renderer';
 export class Tick {
   private gameRenderer: GameRenderer | null = null;
 
-  public setGameRenderer(gameRenderer: GameRenderer): void {
-    this.gameRenderer = gameRenderer;
-  }
-
   public run(startTimestamp: number): void {
     let lastTimestampMs = startTimestamp;
 
@@ -25,5 +21,13 @@ export class Tick {
     };
 
     requestAnimationFrame(tick);
+  }
+
+  public resetGameRenderer(): void {
+    this.gameRenderer = null;
+  }
+
+  public setGameRenderer(gameRenderer: GameRenderer): void {
+    this.gameRenderer = gameRenderer;
   }
 }

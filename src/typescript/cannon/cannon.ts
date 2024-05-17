@@ -47,9 +47,9 @@ export class Cannon {
         status: 'reloading',
         progress: (timestamp - this.lastShotTimestamp) / this._reloadingMs
       };
-    } else {
-      return { status: 'ready' };
     }
+
+    return { status: 'ready' };
   }
 
   public setRotation(radians: number): void {

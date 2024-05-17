@@ -1,109 +1,21 @@
 import { Game } from './game';
 import { GameRenderer } from './render/game-renderer';
-import { DomEventsOptions } from './models/dom-events-options.interface';
 import { Tick } from './tick';
+import { initDomEvents } from './dom/dom-events';
+import { getHtmlElement } from './dom/get-html-element';
 
 document.addEventListener('DOMContentLoaded', (event) => {
-  const gameCanvas = document.querySelector<HTMLCanvasElement>('#game-canvas');
-  if (!gameCanvas) {
-    throw new Error('game-canvas element not found');
-  }
-
-  const container = document.querySelector<HTMLDivElement>('#container');
-  if (!container) {
-    throw new Error('container element not found');
-  }
-
-  const fullscreenButton = document.querySelector<HTMLButtonElement>('#fullscreen-button');
-  if (!fullscreenButton) {
-    throw new Error('fullscreenButton element not found');
-  }
+  const gameCanvas = getHtmlElement<HTMLCanvasElement>('game-canvas');
+  const container = getHtmlElement<HTMLDivElement>('container');
+  const fullscreenButton = getHtmlElement<HTMLButtonElement>('fullscreen-button');
 
   const game = new Game();
   const gameRenderer = new GameRenderer(gameCanvas, game);
-
-  const domEventsOptions: DomEventsOptions = { container, game, gameRenderer, fullscreenButton };
-  const uiFunctions: ((domEventsOptions: DomEventsOptions) => void)[] = [
-    containerOnMousedown,
-    containerOnMouseup,
-    containerOnMousemove,
-    fullscreenButtonClick,
-    windowOnKeydown,
-    windowOnKeyup,
-    windowOnResize
-  ];
-
-  uiFunctions.forEach((func) => {
-    func(domEventsOptions);
-  });
-
   gameRenderer.updateSceneMeasures();
+
+  initDomEvents({ container, game, gameRenderer, fullscreenButton });
 
   const tick = new Tick();
   tick.run(event.timeStamp);
   tick.setGameRenderer(gameRenderer);
 });
-
-function containerOnMousedown({ container, game, gameRenderer }: DomEventsOptions): void {
-  container.addEventListener('mousedown', (event) => {
-    if (event.button === 0 && !gameRenderer.pause) {
-      game.fire();
-      game.activateCannons();
-    }
-  });
-}
-
-function containerOnMouseup({ container, game }: DomEventsOptions): void {
-  container.addEventListener('mouseup', (event) => {
-    if (event.button === 0) {
-      game.deactivateCannons();
-    }
-  });
-}
-
-function containerOnMousemove({ container, gameRenderer }: DomEventsOptions): void {
-  container.addEventListener('mousemove', (event) => {
-    gameRenderer.setActiveScenePosition(event.offsetX, event.offsetY);
-    gameRenderer.updateCannonRotation();
-  });
-}
-
-function fullscreenButtonClick({ container, fullscreenButton }: DomEventsOptions): void {
-  fullscreenButton.addEventListener('click', (event) => {
-    container.requestFullscreen();
-  });
-}
-
-function windowOnKeydown({ gameRenderer, game }: DomEventsOptions): void {
-  window.addEventListener('keydown', (event) => {
-    if (['f', 'а'].includes(event.key.toLowerCase()) && !gameRenderer.pause) {
-      game.activateCannons();
-    }
-
-    if (['d', 'в'].includes(event.key.toLowerCase())) {
-      gameRenderer.toggleDisplayDebug();
-    }
-
-    if (event.key === 'Escape') {
-      gameRenderer.togglePause();
-
-      if (!gameRenderer.pause) {
-        gameRenderer.updateCannonRotation();
-      }
-    }
-  });
-}
-
-function windowOnKeyup({ game }: DomEventsOptions): void {
-  window.addEventListener('keyup', (event) => {
-    if (['f', 'а'].includes(event.key.toLowerCase())) {
-      game.deactivateCannons();
-    }
-  });
-}
-
-function windowOnResize({ gameRenderer }: DomEventsOptions): void {
-  window.addEventListener('resize', () => {
-    gameRenderer.updateSceneMeasures();
-  });
-}

@@ -1,5 +1,5 @@
 export class FpsMeter {
-  private readonly valuesLimit = 60;
+  private readonly valuesLimit = 30;
   private valuesMs: number[] = [];
 
   public registerFrame(ms: number): void {

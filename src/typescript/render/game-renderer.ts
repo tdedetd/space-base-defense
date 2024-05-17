@@ -32,11 +32,8 @@ export class GameRenderer {
     return this._pause;
   }
 
-  constructor(
-    private readonly container: HTMLCanvasElement,
-    game: Game
-  ) {
-    const ctx = this.container.getContext('2d');
+  constructor(container: HTMLCanvasElement, game: Game) {
+    const ctx = container.getContext('2d');
     if (!ctx) {
       throw new Error('Cannot get context 2d');
     }
@@ -87,26 +84,30 @@ export class GameRenderer {
   }
 
   public updateSceneMeasures(): void {
-    this.container.width = this.container.clientWidth;
-    this.container.height = this.container.clientHeight;
+    this.ctx.canvas.width = this.ctx.canvas.clientWidth;
+    this.ctx.canvas.height = this.ctx.canvas.clientHeight;
 
-    this.measures.update(this.container.width, this.container.height);
+    this.measures.update(this.ctx.canvas.width, this.ctx.canvas.height);
 
-    const x = -this.measures.sceneOriginPx.x * (this.measures.sceneWidth / this.measures.sceneWidthPx);
-    const y = -this.measures.sceneOriginPx.y * (this.measures.sceneHeight / this.measures.sceneHeightPx);
-
-    const sceneBorders: Rectangle = {
-      x,
-      y,
-      width: this.measures.sceneWidth + (-x * 2),
-      height: this.measures.sceneHeight + (-y * 2),
-    };
+    const sceneBorders = this.getSceneBorders();
     this.despawner.setBorders(sceneBorders);
     this.game.enemyProjectilesSpawner.setBorders(sceneBorders);
   }
 
   private clearScene(): void {
-    this.ctx.clearRect(0, 0, this.container.width, this.container.height);
+    this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+  }
+
+  private getSceneBorders(): Rectangle {
+    const x = -this.measures.sceneOriginPx.x * (this.measures.sceneWidth / this.measures.sceneWidthPx);
+    const y = -this.measures.sceneOriginPx.y * (this.measures.sceneHeight / this.measures.sceneHeightPx);
+
+    return {
+      x,
+      y,
+      width: this.measures.sceneWidth + (-x * 2),
+      height: this.measures.sceneHeight + (-y * 2),
+    };
   }
 
   private renderBaseModules(baseModules: BaseModule[]): void {

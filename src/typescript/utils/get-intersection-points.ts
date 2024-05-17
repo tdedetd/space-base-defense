@@ -7,7 +7,7 @@ export function getIntersectionPoints(line: Line, rectangle: Rectangle): Point[]
   const vertex1: Point = {
     x: rectangle.x,
     y: rectangle.y
-  }
+  };
   const vertex2: Point = {
     x: rectangle.x + rectangle.width,
     y: rectangle.y
@@ -19,7 +19,7 @@ export function getIntersectionPoints(line: Line, rectangle: Rectangle): Point[]
   const vertex4: Point = {
     x: rectangle.x,
     y: rectangle.y + rectangle.height
-  }
+  };
   const checkResults = [
     checkIntersection(
       line[0].x, line[0].y, line[1].x, line[1].y,
