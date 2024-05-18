@@ -1,5 +1,5 @@
-import { Point } from './models/geometry/point.intarface';
-import { Rectangle } from './models/geometry/rectangle.interface';
+import { Point } from '../../../models/geometry/point.intarface';
+import { Rectangle } from '../../../models/geometry/rectangle.interface';
 
 export class Measures {
   private _sceneWidth = 0;

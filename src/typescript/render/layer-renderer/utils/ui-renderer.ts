@@ -1,6 +1,6 @@
-import { Cannon } from '../cannon/cannon';
-import { Game } from '../game';
-import { Measures } from '../measures';
+import { Cannon } from '../../../cannon/cannon';
+import { Game } from '../../../game';
+import { Measures } from './measures';
 
 export class UiRenderer {
   private reloadingScaleOptions = {

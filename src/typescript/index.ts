@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
   const gameRenderer = new GameRenderer({
     mainStatic: getHtmlElement<HTMLCanvasElement>('canvas-main-static'),
     main: getHtmlElement<HTMLCanvasElement>('canvas-main'),
-  }, game);
+  }, game, container);
 
   gameRenderer.updateSceneMeasures();
 

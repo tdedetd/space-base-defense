@@ -1,3 +1,3 @@
-import { CanvasLayers } from './canvas-layers.type';
+import { LayerRenderers } from './layer-renderers.interface';
 
-export type CanvasesMap = Record<CanvasLayers, HTMLCanvasElement>;
+export type CanvasesMap = Record<keyof LayerRenderers, HTMLCanvasElement>;

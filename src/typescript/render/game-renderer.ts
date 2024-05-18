@@ -1,31 +1,24 @@
-import { BaseModule } from '../base/base-module';
-import { Cannon } from '../cannon/cannon';
-import { DebugRenderer } from './debug-renderer';
 import { Game } from '../game';
-import { Measures } from '../measures';
+import { Measures } from './layer-renderer/utils/measures';
 import { Point } from '../models/geometry/point.intarface';
 import { Rectangle } from '../models/geometry/rectangle.interface';
 import { ProjectileDespawner } from '../projectile-despawner';
-import { BlasterProjectile } from '../projectile/blaster-projectile';
 import { CoordinateSystemConverter } from '../utils/coordinate-system-converter.class';
-import { UiRenderer } from './ui-renderer';
-import { CanvasContexts } from './models/canvas-contexts.type';
 import { CanvasesMap } from './models/canvases-map.type';
 import { getContext2d } from './utils/get-context-2d';
-import { clearContext } from './utils/clear-context';
-import { GameEventTypes } from '../game-events/models/game-event-types.enum';
+import { GameMainStaticLayerRenderer } from './layer-renderer/game-main-static-layer-renderer';
+import { LayerRenderers } from './models/layer-renderers.interface';
+import { LayerRenderer } from './layer-renderer/layer-renderer';
+import { GameMainLayerRenderer } from './layer-renderer/game-main-layer-renderer';
+import { RenderLayerOptions } from './models/render-layer-options.interface';
 
 export class GameRenderer {
-  private readonly debugRenderer: DebugRenderer;
-  private readonly uiRenderer: UiRenderer;
-
-  private displayDebug = true;
+  private readonly layerRenderers: LayerRenderers;
   private readonly despawner: ProjectileDespawner;
   private readonly _game: Game;
+
   private _pause = false;
   private measures = new Measures(3 / 4, 1000);
-
-  private readonly ctx: CanvasContexts;
 
   private activeScenePosition: Point | null = null;
 
@@ -37,37 +30,41 @@ export class GameRenderer {
     return this._pause;
   }
 
-  constructor(canvases: CanvasesMap, game: Game) {
-    this.ctx = {
-      mainStatic: getContext2d(canvases.mainStatic),
-      main: getContext2d(canvases.main),
-    };
+  constructor(
+    canvases: CanvasesMap,
+    game: Game,
+    private readonly container: HTMLDivElement
+  ) {
     this._game = game;
-
-    this.debugRenderer = new DebugRenderer(this.ctx.main, this.measures);
-    this.uiRenderer = new UiRenderer(this.ctx.main, this.measures);
     this.despawner = new ProjectileDespawner(this._game);
+
+    this.layerRenderers = {
+      main: new GameMainLayerRenderer(
+        getContext2d(canvases.main),
+        this._game,
+        this.measures
+      ),
+      mainStatic: new GameMainStaticLayerRenderer(
+        getContext2d(canvases.mainStatic),
+        this._game,
+        this.measures
+      ),
+    };
   }
 
   public render(msDiff: number): void {
-    clearContext(this.ctx.main);
+    const renderOptions: RenderLayerOptions = {
+      activeScenePosition: this.activeScenePosition,
+      msDiff,
+      pause: this._pause
+    };
 
-    this.renderBlasterProjectiles(this._game.enemyProjectiles);
-    this.renderBlasterProjectiles(this._game.allyProjectiles);
-    this.renderCannons(this._game.cannons);
-
-    this.uiRenderer.render(this._game);
-
-    if (this.displayDebug) {
-      this.debugRenderer.render(this._game, this.activeScenePosition, this._pause, msDiff);
-    }
-
+    this.layerRenderers.main.render(renderOptions);
     this.despawner.update(msDiff);
-    this.listenEvents();
   }
 
   public toggleDisplayDebug(): void {
-    this.displayDebug = !this.displayDebug;
+    this.layerRenderers.main.displayDebug = !this.layerRenderers.main.displayDebug;
   }
 
   public togglePause(): void {
@@ -88,18 +85,19 @@ export class GameRenderer {
   }
 
   public updateSceneMeasures(): void {
-    Object.entries(this.ctx).forEach(([_, ctx]) => {
-      ctx.canvas.width = ctx.canvas.clientWidth;
-      ctx.canvas.height = ctx.canvas.clientHeight;
-    });
+    Object.values(this.layerRenderers)
+      .filter((value): value is LayerRenderer => value instanceof LayerRenderer)
+      .forEach((layerRenderer) => {
+        layerRenderer.updateCanvasSize(this.container.clientWidth, this.container.clientHeight);
+      });
 
-    this.measures.update(this.ctx.main.canvas.width, this.ctx.main.canvas.height);
+    this.measures.update(this.container.clientWidth, this.container.clientHeight);
 
     const sceneBorders = this.getSceneBorders();
     this.despawner.setBorders(sceneBorders);
     this.game.enemyProjectilesSpawner.setBorders(sceneBorders);
 
-    this.renderStatic();
+    this.layerRenderers.mainStatic.render();
   }
 
   private getSceneBorders(): Rectangle {
@@ -112,59 +110,5 @@ export class GameRenderer {
       width: this.measures.sceneWidth + (-x * 2),
       height: this.measures.sceneHeight + (-y * 2),
     };
-  }
-
-  private listenEvents(): void {
-    this._game.events.listen(GameEventTypes.DestroyModule, () => {
-      this.renderStatic();
-    });
-  }
-
-  private renderStatic(): void {
-    clearContext(this.ctx.mainStatic);
-    this.renderBaseModules(this._game.baseModules);
-  }
-
-  private renderBaseModules(baseModules: BaseModule[]): void {
-    const ctx = this.ctx.mainStatic;
-    baseModules.filter(module => !module.destroyed).forEach((module) => {
-      ctx.strokeStyle = '#d19c13';
-      const rectanglePx = this.measures.convertRectangleToPx(module.rectangle);
-      ctx.strokeRect(rectanglePx.x, rectanglePx.y, rectanglePx.width, rectanglePx.height);
-    });
-  }
-
-  private renderBlasterProjectiles(projectiles: BlasterProjectile[]): void {
-    projectiles.forEach((projectile) => {
-      const line = projectile.getLine();
-      const point1Px = this.measures.convertPointToPx(line[0]);
-      const point2Px = this.measures.convertPointToPx(line[1]);
-
-      this.ctx.main.strokeStyle = projectile.color;
-      this.ctx.main.beginPath();
-      this.ctx.main.moveTo(point1Px.x, point1Px.y);
-      this.ctx.main.lineTo(point2Px.x, point2Px.y);
-      this.ctx.main.stroke();
-    });
-  }
-
-  private renderCannons(cannons: Cannon[]): void {
-    cannons.forEach((cannon) => {
-      const point2 = CoordinateSystemConverter.toCartesian(
-        {
-          radians: cannon.rotationRadians,
-          radius: cannon.barrelLength,
-        },
-        cannon.position
-      );
-      const point1Px = this.measures.convertPointToPx(cannon.position);
-      const point2Px = this.measures.convertPointToPx(point2);
-
-      this.ctx.main.strokeStyle = '#d19c13';
-      this.ctx.main.beginPath();
-      this.ctx.main.moveTo(point1Px.x, point1Px.y);
-      this.ctx.main.lineTo(point2Px.x, point2Px.y);
-      this.ctx.main.stroke();
-    });
   }
 }

@@ -1,8 +1,8 @@
-import { Game } from '../game';
-import { Measures } from '../measures';
-import { Point } from '../models/geometry/point.intarface';
-import { Rectangle } from '../models/geometry/rectangle.interface';
-import { formatPoint } from '../utils/format-point';
+import { Game } from '../../../game';
+import { Measures } from './measures';
+import { Point } from '../../../models/geometry/point.intarface';
+import { Rectangle } from '../../../models/geometry/rectangle.interface';
+import { formatPoint } from '../../../utils/format-point';
 import { FpsMeter } from './fps-meter';
 
 export class DebugRenderer {
