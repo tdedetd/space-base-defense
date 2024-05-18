@@ -2,6 +2,8 @@ import { Base } from './base/base';
 import { BaseModule } from './base/base-module';
 import { Cannon } from './cannon/cannon';
 import { EnemyProjectileSpawner } from './enemy-projectile-spawner/enemy-projectile-spawner';
+import { GameEvents } from './game-events/game-events';
+import { GameEventTypes } from './game-events/models/game-event-types.enum';
 import { GameStatistics } from './game-statistics';
 import { Rectangle } from './models/geometry/rectangle.interface';
 import { BlasterProjectile } from './projectile/blaster-projectile';
@@ -10,6 +12,7 @@ import { isPointInsideIntervals } from './utils/is-point-inside-intervals';
 import { toRadians } from './utils/to-radians';
 
 export class Game {
+  private _events = new GameEvents();
   private _timestamp = 0;
   private _allyProjectiles: BlasterProjectile[] = [];
   private _enemyProjectiles: BlasterProjectile[] = [];
@@ -101,6 +104,10 @@ export class Game {
 
   public get statistics(): GameStatistics {
     return this._statistics;
+  }
+
+  public get events(): GameEvents {
+    return this._events;
   }
 
   constructor() {
@@ -208,6 +215,7 @@ export class Game {
   private checkBaseModuleIntersections(): void {
     const enemyProjectilesToClear: BlasterProjectile[] = [];
     const baseRectangle = this.base.getBorders();
+    let needDispatch = false;
 
     this._enemyProjectiles.forEach((enemyProjectile) => {
       if (enemyProjectile.intersects(baseRectangle)) {
@@ -216,10 +224,15 @@ export class Game {
             module.destroy();
             enemyProjectilesToClear.push(enemyProjectile);
             this.enemyProjectilesSpawner.removeTarget(module.rectangle);
+            needDispatch = true;
           }
         });
       }
     });
+
+    if (needDispatch) {
+      this.events.dispatch(GameEventTypes.DestroyModule);
+    }
 
     this._enemyProjectiles = this._enemyProjectiles
       .filter((projectile) => !enemyProjectilesToClear.includes(projectile));

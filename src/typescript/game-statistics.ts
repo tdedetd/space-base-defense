@@ -15,15 +15,15 @@ export class GameStatistics {
     return this._shots;
   }
 
-  public addEnemyProjectiles(count = 1): void {
+  public addEnemyProjectiles(count: number): void {
     this._enemyProjectiles += count;
   }
 
-  public addHits(count = 1): void {
+  public addHits(count: number): void {
     this._hits += count;
   }
 
-  public addShots(count = 1): void {
+  public addShots(count: number): void {
     this._shots += count;
   }
 }

@@ -9,6 +9,11 @@ import { ProjectileDespawner } from '../projectile-despawner';
 import { BlasterProjectile } from '../projectile/blaster-projectile';
 import { CoordinateSystemConverter } from '../utils/coordinate-system-converter.class';
 import { UiRenderer } from './ui-renderer';
+import { CanvasContexts } from './models/canvas-contexts.type';
+import { CanvasesMap } from './models/canvases-map.type';
+import { getContext2d } from './utils/get-context-2d';
+import { clearContext } from './utils/clear-context';
+import { GameEventTypes } from '../game-events/models/game-event-types.enum';
 
 export class GameRenderer {
   private readonly debugRenderer: DebugRenderer;
@@ -20,7 +25,7 @@ export class GameRenderer {
   private _pause = false;
   private measures = new Measures(3 / 4, 1000);
 
-  private readonly ctx: CanvasRenderingContext2D;
+  private readonly ctx: CanvasContexts;
 
   private activeScenePosition: Point | null = null;
 
@@ -32,26 +37,23 @@ export class GameRenderer {
     return this._pause;
   }
 
-  constructor(container: HTMLCanvasElement, game: Game) {
-    const ctx = container.getContext('2d');
-    if (!ctx) {
-      throw new Error('Cannot get context 2d');
-    }
-    this.ctx = ctx;
+  constructor(canvases: CanvasesMap, game: Game) {
+    this.ctx = {
+      mainStatic: getContext2d(canvases.mainStatic),
+      main: getContext2d(canvases.main),
+    };
     this._game = game;
 
-    this.debugRenderer = new DebugRenderer(ctx, this.measures);
-    this.uiRenderer = new UiRenderer(ctx, this.measures);
-
+    this.debugRenderer = new DebugRenderer(this.ctx.main, this.measures);
+    this.uiRenderer = new UiRenderer(this.ctx.main, this.measures);
     this.despawner = new ProjectileDespawner(this._game);
   }
 
   public render(msDiff: number): void {
-    this.clearScene();
+    clearContext(this.ctx.main);
 
     this.renderBlasterProjectiles(this._game.enemyProjectiles);
     this.renderBlasterProjectiles(this._game.allyProjectiles);
-    this.renderBaseModules(this._game.baseModules);
     this.renderCannons(this._game.cannons);
 
     this.uiRenderer.render(this._game);
@@ -61,6 +63,7 @@ export class GameRenderer {
     }
 
     this.despawner.update(msDiff);
+    this.listenEvents();
   }
 
   public toggleDisplayDebug(): void {
@@ -85,18 +88,18 @@ export class GameRenderer {
   }
 
   public updateSceneMeasures(): void {
-    this.ctx.canvas.width = this.ctx.canvas.clientWidth;
-    this.ctx.canvas.height = this.ctx.canvas.clientHeight;
+    Object.entries(this.ctx).forEach(([_, ctx]) => {
+      ctx.canvas.width = ctx.canvas.clientWidth;
+      ctx.canvas.height = ctx.canvas.clientHeight;
+    });
 
-    this.measures.update(this.ctx.canvas.width, this.ctx.canvas.height);
+    this.measures.update(this.ctx.main.canvas.width, this.ctx.main.canvas.height);
 
     const sceneBorders = this.getSceneBorders();
     this.despawner.setBorders(sceneBorders);
     this.game.enemyProjectilesSpawner.setBorders(sceneBorders);
-  }
 
-  private clearScene(): void {
-    this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+    this.renderStatic();
   }
 
   private getSceneBorders(): Rectangle {
@@ -111,11 +114,23 @@ export class GameRenderer {
     };
   }
 
+  private listenEvents(): void {
+    this._game.events.listen(GameEventTypes.DestroyModule, () => {
+      this.renderStatic();
+    });
+  }
+
+  private renderStatic(): void {
+    clearContext(this.ctx.mainStatic);
+    this.renderBaseModules(this._game.baseModules);
+  }
+
   private renderBaseModules(baseModules: BaseModule[]): void {
+    const ctx = this.ctx.mainStatic;
     baseModules.filter(module => !module.destroyed).forEach((module) => {
-      this.ctx.strokeStyle = '#d19c13';
+      ctx.strokeStyle = '#d19c13';
       const rectanglePx = this.measures.convertRectangleToPx(module.rectangle);
-      this.ctx.strokeRect(rectanglePx.x, rectanglePx.y, rectanglePx.width, rectanglePx.height);
+      ctx.strokeRect(rectanglePx.x, rectanglePx.y, rectanglePx.width, rectanglePx.height);
     });
   }
 
@@ -125,11 +140,11 @@ export class GameRenderer {
       const point1Px = this.measures.convertPointToPx(line[0]);
       const point2Px = this.measures.convertPointToPx(line[1]);
 
-      this.ctx.strokeStyle = projectile.color;
-      this.ctx.beginPath();
-      this.ctx.moveTo(point1Px.x, point1Px.y);
-      this.ctx.lineTo(point2Px.x, point2Px.y);
-      this.ctx.stroke();
+      this.ctx.main.strokeStyle = projectile.color;
+      this.ctx.main.beginPath();
+      this.ctx.main.moveTo(point1Px.x, point1Px.y);
+      this.ctx.main.lineTo(point2Px.x, point2Px.y);
+      this.ctx.main.stroke();
     });
   }
 
@@ -145,11 +160,11 @@ export class GameRenderer {
       const point1Px = this.measures.convertPointToPx(cannon.position);
       const point2Px = this.measures.convertPointToPx(point2);
 
-      this.ctx.strokeStyle = '#d19c13';
-      this.ctx.beginPath();
-      this.ctx.moveTo(point1Px.x, point1Px.y);
-      this.ctx.lineTo(point2Px.x, point2Px.y);
-      this.ctx.stroke();
+      this.ctx.main.strokeStyle = '#d19c13';
+      this.ctx.main.beginPath();
+      this.ctx.main.moveTo(point1Px.x, point1Px.y);
+      this.ctx.main.lineTo(point2Px.x, point2Px.y);
+      this.ctx.main.stroke();
     });
   }
 }

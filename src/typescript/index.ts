@@ -5,12 +5,15 @@ import { initDomEvents } from './dom/dom-events';
 import { getHtmlElement } from './dom/get-html-element';
 
 document.addEventListener('DOMContentLoaded', (event) => {
-  const gameCanvas = getHtmlElement<HTMLCanvasElement>('game-canvas');
   const container = getHtmlElement<HTMLDivElement>('container');
   const fullscreenButton = getHtmlElement<HTMLButtonElement>('fullscreen-button');
 
   const game = new Game();
-  const gameRenderer = new GameRenderer(gameCanvas, game);
+  const gameRenderer = new GameRenderer({
+    mainStatic: getHtmlElement<HTMLCanvasElement>('canvas-main-static'),
+    main: getHtmlElement<HTMLCanvasElement>('canvas-main'),
+  }, game);
+
   gameRenderer.updateSceneMeasures();
 
   initDomEvents({ container, game, gameRenderer, fullscreenButton });
