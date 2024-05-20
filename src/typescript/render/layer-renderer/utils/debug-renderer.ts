@@ -85,12 +85,13 @@ export class DebugRenderer {
 
   private renderSceneBounds(): void {
     this.ctx.strokeStyle = this.hitboxColor;
-    this.ctx.strokeRect(
-      this.measures.sceneOriginPx.x,
-      this.measures.sceneOriginPx.y,
-      this.measures.sceneWidthPx,
-      this.measures.sceneHeightPx
-    );
+    const rectangle = this.measures.convertRectangleToPx({
+      x: 0,
+      y: 0,
+      width: this.measures.sceneWidth,
+      height: this.measures.sceneHeight
+    });
+    this.ctx.strokeRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
   }
 
   private renderInfoLine(text: string): void {

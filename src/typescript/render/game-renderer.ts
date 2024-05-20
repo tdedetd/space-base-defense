@@ -93,22 +93,10 @@ export class GameRenderer {
 
     this.measures.update(this.container.clientWidth, this.container.clientHeight);
 
-    const sceneBorders = this.getSceneBorders();
+    const sceneBorders = this.measures.getSceneBorders();
     this.despawner.setBorders(sceneBorders);
     this.game.enemyProjectilesSpawner.setBorders(sceneBorders);
 
     this.layerRenderers.mainStatic.render();
-  }
-
-  private getSceneBorders(): Rectangle {
-    const x = -this.measures.sceneOriginPx.x * (this.measures.sceneWidth / this.measures.sceneWidthPx);
-    const y = -this.measures.sceneOriginPx.y * (this.measures.sceneHeight / this.measures.sceneHeightPx);
-
-    return {
-      x,
-      y,
-      width: this.measures.sceneWidth + (-x * 2),
-      height: this.measures.sceneHeight + (-y * 2),
-    };
   }
 }

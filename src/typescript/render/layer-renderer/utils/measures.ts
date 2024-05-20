@@ -19,14 +19,6 @@ export class Measures {
     return this._sceneHeight;
   }
 
-  public get sceneWidthPx(): number {
-    return this._sceneWidthPx;
-  }
-
-  public get sceneHeightPx(): number {
-    return this._sceneHeightPx;
-  }
-
   public get sceneYStartPx(): number {
     return this._sceneYStartPx;
   }
@@ -41,8 +33,8 @@ export class Measures {
 
   public convertPointToPx(scenePoint: Point): Point {
     return {
-      x: this.sceneOriginPx.x + (scenePoint.x / this.sceneWidth * this.sceneWidthPx),
-      y: this.sceneYStartPx - (scenePoint.y / this.sceneHeight * this.sceneHeightPx),
+      x: this.sceneOriginPx.x + (scenePoint.x / this.sceneWidth * this._sceneWidthPx),
+      y: this.sceneYStartPx - (scenePoint.y / this.sceneHeight * this._sceneHeightPx),
     };
   }
 
@@ -52,19 +44,31 @@ export class Measures {
       y: sceneRectangle.y
     });
 
-    const height = this.sceneHeightPx / this.sceneHeight * sceneRectangle.height;
+    const height = this._sceneHeightPx / this.sceneHeight * sceneRectangle.height;
     return {
       x: startPoint.x,
       y: startPoint.y - height,
-      width: this.sceneWidthPx / this.sceneWidth * sceneRectangle.width,
-      height: height,
+      width: this._sceneWidthPx / this.sceneWidth * sceneRectangle.width,
+      height,
     };
   }
 
   public convertPointToScenePoint(pointPx: Point): Point {
     return {
-      x: (pointPx.x - this.sceneOriginPx.x) / this.sceneWidthPx * this.sceneWidth,
-      y: (this.sceneYStartPx - pointPx.y) / this.sceneHeightPx * this.sceneHeight,
+      x: (pointPx.x - this.sceneOriginPx.x) / this._sceneWidthPx * this.sceneWidth,
+      y: (this.sceneYStartPx - pointPx.y) / this._sceneHeightPx * this.sceneHeight,
+    };
+  }
+
+  public getSceneBorders(): Rectangle {
+    const x = -this.sceneOriginPx.x * (this.sceneWidth / this._sceneWidthPx);
+    const y = -this.sceneOriginPx.y * (this.sceneHeight / this._sceneHeightPx);
+
+    return {
+      x,
+      y,
+      width: this.sceneWidth + (-x * 2),
+      height: this.sceneHeight + (-y * 2),
     };
   }
 
@@ -85,7 +89,7 @@ export class Measures {
       this._sceneWidthPx = Math.round(heightPx / this.aspectRatio);
       this._sceneHeightPx = heightPx;
       this._sceneOriginPx = {
-        x: Math.round(widthPx / 2 - this.sceneWidthPx / 2),
+        x: Math.round(widthPx / 2 - this._sceneWidthPx / 2),
         y: 0,
       };
     }
