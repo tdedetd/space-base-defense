@@ -1,15 +1,19 @@
 import { Point } from '../../../models/geometry/point.intarface';
 import { Rectangle } from '../../../models/geometry/rectangle.interface';
+import { defaultCamera } from '../../constants/default-camera';
+import { Camera } from '../../models/camera.interface';
 
 export class Measures {
+  private _camera: Camera = defaultCamera;
+
   private _sceneWidth = 0;
   private _sceneHeight = 0;
 
   private _sceneWidthPx = 0;
   private _sceneHeightPx = 0;
 
-  private _sceneYStartPx = 0;
   private _sceneOriginPx: Point = { x: 0, y: 0 };
+  private _sceneYStartPx = 0;
 
   public get sceneWidth(): number {
     return this._sceneWidth;
@@ -33,8 +37,12 @@ export class Measures {
 
   public convertPointToPx(scenePoint: Point): Point {
     return {
-      x: this.sceneOriginPx.x + (scenePoint.x / this.sceneWidth * this._sceneWidthPx),
-      y: this.sceneYStartPx - (scenePoint.y / this.sceneHeight * this._sceneHeightPx),
+      x: this.sceneOriginPx.x
+        + ((scenePoint.x - this._camera.position.x) / this.sceneWidth * this._sceneWidthPx)
+        * this._camera.zoom,
+      y: this.sceneYStartPx
+        - ((scenePoint.y - this._camera.position.y) / this.sceneHeight * this._sceneHeightPx)
+        * this._camera.zoom,
     };
   }
 
@@ -47,17 +55,22 @@ export class Measures {
     const height = this._sceneHeightPx / this.sceneHeight * sceneRectangle.height;
     return {
       x: startPoint.x,
-      y: startPoint.y - height,
-      width: this._sceneWidthPx / this.sceneWidth * sceneRectangle.width,
-      height,
+      y: startPoint.y - height * this._camera.zoom,
+      width: this._sceneWidthPx / this.sceneWidth * sceneRectangle.width * this._camera.zoom,
+      height: height * this._camera.zoom,
     };
   }
 
-  public convertPointToScenePoint(pointPx: Point): Point {
-    return {
-      x: (pointPx.x - this.sceneOriginPx.x) / this._sceneWidthPx * this.sceneWidth,
-      y: (this.sceneYStartPx - pointPx.y) / this._sceneHeightPx * this.sceneHeight,
-    };
+  public convertPointPxToScenePoint(pointPx: Point): Point {
+    const x = (pointPx.x - this._sceneOriginPx.x)
+      / this._sceneWidthPx * this._sceneWidth
+      / this._camera.zoom + this._camera.position.x;
+
+    const y = (this._sceneYStartPx - pointPx.y)
+      / this._sceneHeightPx * this._sceneHeight
+      / this._camera.zoom + this._camera.position.y;
+
+    return { x, y };
   }
 
   public getSceneBorders(): Rectangle {
@@ -74,7 +87,6 @@ export class Measures {
 
   public update(widthPx: number, heightPx: number): void {
     this.updateSceneBorders(widthPx, heightPx);
-    this._sceneYStartPx = this._sceneOriginPx.y + this._sceneHeightPx;
   }
 
   private updateSceneBorders(widthPx: number, heightPx: number): void {
@@ -93,6 +105,7 @@ export class Measures {
         y: 0,
       };
     }
+    this._sceneYStartPx = this._sceneOriginPx.y + this._sceneHeightPx;
   }
 
   private updateSceneSizes(width: number): void {

@@ -1,7 +1,6 @@
 import { Game } from '../game';
 import { Measures } from './layer-renderer/utils/measures';
 import { Point } from '../models/geometry/point.intarface';
-import { Rectangle } from '../models/geometry/rectangle.interface';
 import { ProjectileDespawner } from '../projectile-despawner';
 import { CoordinateSystemConverter } from '../utils/coordinate-system-converter.class';
 import { CanvasesMap } from './models/canvases-map.type';
@@ -72,7 +71,7 @@ export class GameRenderer {
   }
 
   public setActiveScenePosition(xPx: number, yPx: number): void {
-    this.activeScenePosition = this.measures.convertPointToScenePoint({ x: xPx, y: yPx });
+    this.activeScenePosition = this.measures.convertPointPxToScenePoint({ x: xPx, y: yPx });
   }
 
   public updateCannonRotation(): void {
