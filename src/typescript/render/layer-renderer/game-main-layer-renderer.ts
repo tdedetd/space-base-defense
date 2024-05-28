@@ -10,9 +10,9 @@ import { UiRenderer } from './utils/ui-renderer';
 import { clearContext } from '../utils/clear-context';
 
 export class GameMainLayerRenderer extends LayerRenderer {
+  public displayDebug = true;
   private readonly debugRenderer: DebugRenderer;
   private readonly uiRenderer: UiRenderer;
-  public displayDebug = true;
 
   constructor(ctx: CanvasRenderingContext2D, game: Game, measures: Measures) {
     super(ctx, game, measures);
@@ -33,6 +33,10 @@ export class GameMainLayerRenderer extends LayerRenderer {
     if (this.displayDebug) {
       this.debugRenderer.render(this.game, activeScenePosition, pause, msDiff);
     }
+  }
+
+  public toggleDisplayDebug(): void {
+    this.displayDebug = !this.displayDebug;
   }
 
   private renderBlasterProjectiles(projectiles: BlasterProjectile[]): void {
@@ -67,9 +71,5 @@ export class GameMainLayerRenderer extends LayerRenderer {
       this.ctx.lineTo(point2Px.x, point2Px.y);
       this.ctx.stroke();
     });
-  }
-
-  public toggleDisplayDebug(): void {
-    this.displayDebug = !this.displayDebug;
   }
 }

@@ -95,7 +95,7 @@ module.exports = {
     'generator-star-spacing': ['error', { before: false, after: true }],
     'getter-return': 'error',
     'implicit-arrow-linebreak': ['error', 'beside'],
-    'indent': ['error', 2],
+    'indent': ['error', 2, { 'SwitchCase': 1 }],
     'key-spacing': ['error', { beforeColon: false, afterColon: true }],
     'keyword-spacing': ['error', { before: true, after: true }],
     'line-comment-position': ['error', { position: 'above' }],
