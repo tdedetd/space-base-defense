@@ -5,10 +5,11 @@ export function initDomEvents(domEventsOptions: DomEventsOptions): void {
     containerOnMousedown,
     containerOnMouseup,
     containerOnMousemove,
+    documentVisibilitychange,
     fullscreenButtonClick,
     windowOnKeydown,
     windowOnKeyup,
-    windowOnResize
+    windowOnResize,
   ];
 
   uiFunctions.forEach((func) => {
@@ -37,6 +38,12 @@ function containerOnMousemove({ container, gameRenderer }: DomEventsOptions): vo
   container.addEventListener('mousemove', (event) => {
     gameRenderer.setActiveScenePosition(event.offsetX, event.offsetY);
     gameRenderer.updateCannonRotation();
+  });
+}
+
+function documentVisibilitychange({ gameRenderer }: DomEventsOptions): void {
+  document.addEventListener('visibilitychange', () => {
+    gameRenderer.pause = true;
   });
 }
 

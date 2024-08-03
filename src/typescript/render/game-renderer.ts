@@ -29,6 +29,10 @@ export class GameRenderer {
     return this._pause;
   }
 
+  public set pause(value: boolean) {
+    this._pause = value;
+  }
+
   constructor(
     canvases: CanvasesMap,
     game: Game,
