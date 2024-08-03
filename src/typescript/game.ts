@@ -3,7 +3,6 @@ import { BaseModule } from './base/base-module';
 import { Cannon } from './cannon/cannon';
 import { EnemyProjectileSpawner } from './enemy-projectile-spawner/enemy-projectile-spawner';
 import { GameEvents } from './game-events/game-events';
-import { GameEventTypes } from './game-events/models/game-event-types.enum';
 import { GameStatistics } from './game-statistics';
 import { Rectangle } from './models/geometry/rectangle.interface';
 import { BlasterProjectile } from './projectile/blaster-projectile';
@@ -210,6 +209,12 @@ export class Game {
       .filter((projectile) => !enemyProjectilesToClear.includes(projectile));
 
     this.statistics.addHits(allyProjectilesToClear.length);
+
+    if (allyProjectilesToClear.length || enemyProjectilesToClear.length) {
+      this.events.dispatch('blasterProjectilesIntersect', {
+        projectiles: [...allyProjectilesToClear, ...enemyProjectilesToClear],
+      });
+    }
   }
 
   private checkBaseModuleIntersections(): void {
@@ -231,7 +236,7 @@ export class Game {
     });
 
     if (needDispatch) {
-      this.events.dispatch(GameEventTypes.DestroyModule);
+      this.events.dispatch('destroyModule', undefined);
     }
 
     this._enemyProjectiles = this._enemyProjectiles

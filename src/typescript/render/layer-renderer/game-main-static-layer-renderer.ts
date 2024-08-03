@@ -1,6 +1,5 @@
 import { BaseModule } from '../../base/base-module';
 import { Game } from '../../game';
-import { GameEventTypes } from '../../game-events/models/game-event-types.enum';
 import { Measures } from './utils/measures';
 import { LayerRenderer } from './layer-renderer';
 import { clearContext } from '../utils/clear-context';
@@ -26,7 +25,7 @@ export class GameMainStaticLayerRenderer extends LayerRenderer {
   }
 
   private listenEvents(): void {
-    this.game.events.listen(GameEventTypes.DestroyModule, () => {
+    this.game.events.listen('destroyModule', () => {
       this.render();
     });
   }

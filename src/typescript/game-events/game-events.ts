@@ -1,18 +1,20 @@
-import { GameEventListeners } from './models/game-event-listeners.type';
-import { GameEventTypes } from './models/game-event-types.enum';
+import { GameEventCallback } from './models/game-event-callback.type';
+import { GameEventParams } from './models/game-event-params.type';
 
 export class GameEvents {
-  private listeners: GameEventListeners = {
-    destroyModule: [],
-  };
+  private readonly listeners: Partial<
+    Record<keyof GameEventParams, GameEventCallback<GameEventParams[keyof GameEventParams]>[]>
+  > = {};
 
-  public dispatch(event: GameEventTypes): void {
-    this.listeners[event].forEach((callback) => {
-      callback();
+  public dispatch<K extends keyof GameEventParams>(event: K, params: GameEventParams[K]): void {
+    this.listeners[event]?.forEach((callback) => {
+      callback(params);
     });
   }
 
-  public listen(event: GameEventTypes, callback: () => void): void {
-    this.listeners[event].push(callback);
+  public listen<K extends keyof GameEventParams>(event: K, callback: GameEventCallback<GameEventParams[K]>): void {
+    // TODO: избавиться от этого позора
+    const listeners = this.listeners[event] as any;
+    this.listeners[event] = listeners ? [...listeners, callback] : [callback];
   }
 }

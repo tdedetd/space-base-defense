@@ -56,7 +56,7 @@ function windowOnKeydown({ gameRenderer, game }: DomEventsOptions): void {
       gameRenderer.toggleDisplayDebug();
     }
 
-    if (event.key === 'Escape') {
+    if (['p', 'з'].includes(event.key.toLowerCase())) {
       gameRenderer.togglePause();
 
       if (!gameRenderer.pause) {
