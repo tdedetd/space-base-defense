@@ -1,5 +1,5 @@
-import { ProjectileOptions } from './projectile-options.interface';
+import { SceneObjectOptions } from '../../models/scene-object-options.interface';
 
-export interface BlasterProjectileOptions extends ProjectileOptions {
+export interface BlasterProjectileOptions extends SceneObjectOptions {
   length: number;
 }

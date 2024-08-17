@@ -1,23 +1,22 @@
 import { Game } from '../game';
 import { Measures } from './layer-renderer/utils/measures';
 import { Point } from '../models/geometry/point.intarface';
-import { ProjectileDespawner } from '../projectile-despawner';
 import { CoordinateSystemConverter } from '../utils/coordinate-system-converter.class';
-import { CanvasesMap } from './models/canvases-map.type';
 import { getContext2d } from './utils/get-context-2d';
 import { GameMainStaticLayerRenderer } from './layer-renderer/game-main-static-layer-renderer';
 import { LayerRenderers } from './models/layer-renderers.interface';
 import { LayerRenderer } from './layer-renderer/layer-renderer';
 import { GameMainLayerRenderer } from './layer-renderer/game-main-layer-renderer';
 import { RenderLayerOptions } from './models/render-layer-options.interface';
+import { GameInterval } from '../game-interval';
 
 export class GameRenderer {
-  private readonly layerRenderers: LayerRenderers;
-  private readonly despawner: ProjectileDespawner;
+  private readonly layers: LayerRenderers;
   private readonly _game: Game;
 
   private _pause = false;
   private measures = new Measures(3 / 4, 1000);
+  private clearInterval = new GameInterval(() => {}, 1000000);
 
   private activeScenePosition: Point | null = null;
 
@@ -34,22 +33,21 @@ export class GameRenderer {
   }
 
   constructor(
-    canvases: CanvasesMap,
+    canvases: Record<keyof LayerRenderers, HTMLCanvasElement>,
     game: Game,
     private readonly container: HTMLDivElement
   ) {
     this._game = game;
-    this.despawner = new ProjectileDespawner(this._game);
 
-    this.layerRenderers = {
+    this.layers = {
       main: new GameMainLayerRenderer(
         getContext2d(canvases.main),
-        this._game,
+        this.game,
         this.measures
       ),
       mainStatic: new GameMainStaticLayerRenderer(
         getContext2d(canvases.mainStatic),
-        this._game,
+        this.game,
         this.measures
       ),
     };
@@ -62,12 +60,12 @@ export class GameRenderer {
       pause: this._pause
     };
 
-    this.layerRenderers.main.render(renderOptions);
-    this.despawner.update(msDiff);
+    this.layers.main.render(renderOptions);
+    this.clearInterval.update(msDiff);
   }
 
   public toggleDisplayDebug(): void {
-    this.layerRenderers.main.displayDebug = !this.layerRenderers.main.displayDebug;
+    this.layers.main.displayDebug = !this.layers.main.displayDebug;
   }
 
   public togglePause(): void {
@@ -88,18 +86,21 @@ export class GameRenderer {
   }
 
   public updateSceneMeasures(): void {
-    Object.values(this.layerRenderers)
+    Object.values(this.layers)
       .filter((value): value is LayerRenderer => value instanceof LayerRenderer)
       .forEach((layerRenderer) => {
         layerRenderer.updateCanvasSize(this.container.clientWidth, this.container.clientHeight);
       });
 
     this.measures.update(this.container.clientWidth, this.container.clientHeight);
-
     const sceneBorders = this.measures.getSceneBorders();
-    this.despawner.setBorders(sceneBorders);
+
+    this.clearInterval = new GameInterval(() => {
+      this.game.clearProjectilesOutside(sceneBorders);
+    }, 1000);
+
     this.game.enemyProjectilesSpawner.setBorders(sceneBorders);
 
-    this.layerRenderers.mainStatic.render();
+    this.layers.mainStatic.render();
   }
 }

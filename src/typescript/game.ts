@@ -170,7 +170,7 @@ export class Game {
     }, []);
 
     this._allyProjectiles.push(...newProjectiles);
-    this.statistics.addShots(newProjectiles.length);
+    this.statistics.addShots(newProjectiles.length ? 1 : 0);
   }
 
   public update(msDiff: number): void {
@@ -250,7 +250,9 @@ export class Game {
 
   private requestSpawEnemyProjectiles(msDiff: number): void {
     const newEnemyProjectiles = this._enemyProjectileSpawner.requestSpawn(msDiff, this._timestamp);
-    this._enemyProjectiles.push(...newEnemyProjectiles);
-    this.statistics.addEnemyProjectiles(newEnemyProjectiles.length);
+    if (newEnemyProjectiles.length) {
+      this._enemyProjectiles.push(...newEnemyProjectiles);
+      this.statistics.addEnemyProjectiles(newEnemyProjectiles.length);
+    }
   }
 }
