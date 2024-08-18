@@ -2,16 +2,18 @@ import { BaseModule } from '../../base/base-module';
 import { Game } from '../../game';
 import { Measures } from './utils/measures';
 import { LayerRenderer } from './layer-renderer';
-import { clearContext } from '../utils/clear-context';
 
 export class GameMainStaticLayerRenderer extends LayerRenderer {
   constructor(ctx: CanvasRenderingContext2D, game: Game, measures: Measures) {
     super(ctx, game, measures);
-    this.listenEvents();
+
+    this.game.events.listen('destroyModule', () => {
+      this.render();
+    });
   }
 
   public render(): void {
-    clearContext(this.ctx);
+    this.clearContext();
     this.renderBaseModules(this.game.baseModules);
   }
 
@@ -21,12 +23,6 @@ export class GameMainStaticLayerRenderer extends LayerRenderer {
       ctx.strokeStyle = '#d19c13';
       const rectanglePx = this.measures.convertRectangleToPx(module.rectangle);
       ctx.strokeRect(rectanglePx.x, rectanglePx.y, rectanglePx.width, rectanglePx.height);
-    });
-  }
-
-  private listenEvents(): void {
-    this.game.events.listen('destroyModule', () => {
-      this.render();
     });
   }
 }

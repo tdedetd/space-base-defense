@@ -9,12 +9,12 @@ import { getIntersectionPoints } from '../utils/get-intersection-points';
 import { Random } from '../utils/random';
 import { removeElementFromArray } from '../utils/remove-element-from-array';
 import { toRadians } from '../utils/to-radians';
-import { ProjectilesSpawnFrequencyFunction } from './models/projectiles-spawn-frequency-function';
+import { TimestampToNumberFunction } from '../models/timestamp-to-number-function.type';
 import { isRectangleInsideRectangle } from '../utils/is-rectangle-inside-rectangle';
 import { formatRectangle } from '../utils/format-rectangle';
 
 export class EnemyProjectileSpawner {
-  private readonly _frequency: number | ProjectilesSpawnFrequencyFunction;
+  private readonly _frequency: number | TimestampToNumberFunction;
   private _borders: Rectangle | null = null;
   private _targets: Rectangle[];
 
@@ -31,7 +31,7 @@ export class EnemyProjectileSpawner {
    */
   constructor(
     targets: Rectangle[],
-    frequency: number | ProjectilesSpawnFrequencyFunction,
+    frequency: number | TimestampToNumberFunction,
     private projectileOptions: BlasterProjectileCharacteristics,
   ) {
     this._frequency = frequency;

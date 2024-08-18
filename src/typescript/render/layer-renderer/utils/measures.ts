@@ -35,6 +35,10 @@ export class Measures {
     this.updateSceneSizes(sceneWidth);
   }
 
+  public convertSizeToPx(size: number): number {
+    return this._sceneWidthPx / this.sceneWidth * this._camera.zoom * size;
+  }
+
   public convertPointToPx(scenePoint: Point): Point {
     return {
       x: this.sceneOriginPx.x

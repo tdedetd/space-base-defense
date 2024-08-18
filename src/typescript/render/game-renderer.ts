@@ -9,6 +9,7 @@ import { LayerRenderer } from './layer-renderer/layer-renderer';
 import { GameMainLayerRenderer } from './layer-renderer/game-main-layer-renderer';
 import { RenderLayerOptions } from './models/render-layer-options.interface';
 import { GameInterval } from '../game-interval';
+import { EffectsLayerRenderer } from './layer-renderer/effects-layer-renderer';
 
 export class GameRenderer {
   private readonly layers: LayerRenderers;
@@ -40,6 +41,11 @@ export class GameRenderer {
     this._game = game;
 
     this.layers = {
+      effects: new EffectsLayerRenderer(
+        getContext2d(canvases.effects),
+        this.game,
+        this.measures
+      ),
       main: new GameMainLayerRenderer(
         getContext2d(canvases.main),
         this.game,
@@ -61,6 +67,7 @@ export class GameRenderer {
     };
 
     this.layers.main.render(renderOptions);
+    this.layers.effects.render(renderOptions);
     this.clearInterval.update(msDiff);
   }
 

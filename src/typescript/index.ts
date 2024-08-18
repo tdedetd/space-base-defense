@@ -10,8 +10,9 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
   const game = new Game();
   const gameRenderer = new GameRenderer({
-    mainStatic: getHtmlElement<HTMLCanvasElement>('canvas-main-static'),
-    main: getHtmlElement<HTMLCanvasElement>('canvas-main'),
+    effects: getHtmlElement<HTMLCanvasElement>('layer-effects'),
+    mainStatic: getHtmlElement<HTMLCanvasElement>('layer-main-static'),
+    main: getHtmlElement<HTMLCanvasElement>('layer-main'),
   }, game, container);
 
   gameRenderer.updateSceneMeasures();

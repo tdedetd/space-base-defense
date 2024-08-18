@@ -7,7 +7,6 @@ import { DebugRenderer } from './utils/debug-renderer';
 import { LayerRenderer } from './layer-renderer';
 import { RenderLayerOptions } from '../models/render-layer-options.interface';
 import { UiRenderer } from './utils/ui-renderer';
-import { clearContext } from '../utils/clear-context';
 
 export class GameMainLayerRenderer extends LayerRenderer {
   public displayDebug = true;
@@ -22,7 +21,7 @@ export class GameMainLayerRenderer extends LayerRenderer {
   }
 
   public render({ activeScenePosition, pause, msDiff }: RenderLayerOptions): void {
-    clearContext(this.ctx);
+    this.clearContext();
 
     this.renderBlasterProjectiles(this.game.enemyProjectiles);
     this.renderBlasterProjectiles(this.game.allyProjectiles);
