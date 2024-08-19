@@ -65,7 +65,7 @@ export abstract class SceneObject {
     }
   }
 
-  private getSpeed(): number {
+  public getSpeed(): number {
     return typeof this.speed === 'number' ? this.speed : this.speed(this.age);
   }
 }

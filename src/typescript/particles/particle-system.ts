@@ -1,3 +1,4 @@
+import { getRandomPointBetween } from '../utils/get-random-point-between';
 import { Random } from '../utils/random';
 import { ParticlesEmitOptions } from './models/particles-emit-options.interface';
 import { Particle } from './particle';
@@ -17,7 +18,9 @@ export class ParticleSystem {
         lifetime: typeof options.lifetime === 'number'
           ? options.lifetime
           : Random.interval(options.lifetime[0], options.lifetime[1]),
-        origin: options.position,
+        origin: 'x' in options.spawnPosition
+          ? options.spawnPosition
+          : getRandomPointBetween(...options.spawnPosition),
         position: {
           radians: options.angle + (
             typeof options.angleAmplitude === 'undefined' ? 0 : Random.interval(-options.angleAmplitude, options.angleAmplitude)
@@ -29,6 +32,7 @@ export class ParticleSystem {
           options.speed.deviation ? Random.interval(-options.speed.deviation, options.speed.deviation) : 0
         ),
         color: options.color,
+        opacity: options.opacity,
       });
       newParticles.push(particle);
     }

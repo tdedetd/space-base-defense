@@ -1,5 +1,6 @@
 import { Game } from '../../game';
 import { ParticleSystem } from '../../particles/particle-system';
+import { getDistance } from '../../utils/get-distance';
 import { toRadians } from '../../utils/to-radians';
 import { RenderLayerOptions } from '../models/render-layer-options.interface';
 import { LayerRenderer } from './layer-renderer';
@@ -12,18 +13,25 @@ export class EffectsLayerRenderer extends LayerRenderer {
     super(ctx, game, measures);
 
     this.game.events.listen('blasterProjectilesIntersect', ({ projectiles }) => {
-      this.particleSystem.emit({
-        angle: toRadians(45),
-        angleAmplitude: toRadians(15),
-        color: '#fa0',
-        count: 10,
-        lifetime: 4000,
-        position: { x: 0, y: 0 },
-        radius: 1,
-        speed: {
-          average: 500,
-          deviation: 499,
-        }
+      projectiles.forEach((projectile) => {
+        const line = projectile.getLine();
+        const lineLength = getDistance(line[0], line[1]);
+        const lifetime = 2000;
+
+        this.particleSystem.emit({
+          angle: projectile.position.radians + (projectile.direction === 'fromCenter' ? 0 : Math.PI),
+          angleAmplitude: toRadians(25),
+          color: projectile.color,
+          count: Math.round(lineLength / 10),
+          lifetime,
+          spawnPosition: line,
+          radius: 1,
+          speed: {
+            average: projectile.getSpeed(),
+            deviation: 10,
+          },
+          opacity: (age) => (1 - age / lifetime) * 0.8,
+        });
       });
     });
   }
@@ -43,7 +51,7 @@ export class EffectsLayerRenderer extends LayerRenderer {
         const position = this.measures.convertPointToPx(particle.getPosition());
         const radius = this.measures.convertSizeToPx(particle.radius);
 
-        // TODO: opacity
+        this.ctx.globalAlpha = particle.getOpacity();
         this.ctx.fillStyle = particle.color;
         this.ctx.beginPath();
         this.ctx.ellipse(
