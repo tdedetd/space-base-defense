@@ -4,11 +4,11 @@ import { Cannon } from './cannon/cannon';
 import { EnemyProjectileSpawner } from './enemy-projectile-spawner/enemy-projectile-spawner';
 import { GameEvents } from './game-events/game-events';
 import { GameStatistics } from './game-statistics';
+import { LevelOptions } from './level/models/level-options.interface';
 import { Rectangle } from './models/geometry/rectangle.interface';
 import { BlasterProjectile } from './projectile/blaster-projectile';
 import { Projectile } from './projectile/projectile';
 import { isPointInsideIntervals } from './utils/is-point-inside-intervals';
-import { toRadians } from './utils/to-radians';
 
 export class Game {
   private _events = new GameEvents();
@@ -17,53 +17,9 @@ export class Game {
   private _enemyProjectiles: BlasterProjectile[] = [];
   private _enemyProjectileSpawner: EnemyProjectileSpawner;
   private _statistics = new GameStatistics();
-
-  private _cannons: Cannon[] = [
-    new Cannon({
-      barrelLength: 30,
-      rotationRadians: toRadians(45),
-      position: { x: 100, y: 100 },
-      reloadingMs: 500,
-      projectileOptions: {
-        speed: 1000,
-        color: '#dd8eff',
-        length: 50
-      },
-    }),
-    new Cannon({
-      barrelLength: 30,
-      rotationRadians: toRadians(135),
-      position: { x: 900, y: 100 },
-      reloadingMs: 500,
-      projectileOptions: {
-        speed: 1000,
-        color: '#dd8eff',
-        length: 50
-      },
-    }),
-  ];
+  private _cannons: Cannon[];
   private _cannonsAreActive = false;
-
-  private _base = new Base([
-    new BaseModule({
-      x: 420,
-      y: 20,
-      width: 30,
-      height: 16,
-    }),
-    new BaseModule({
-      x: 500,
-      y: 30,
-      width: 30,
-      height: 18,
-    }),
-    new BaseModule({
-      x: 580,
-      y: 26,
-      width: 30,
-      height: 16,
-    }),
-  ]);
+  private _base: Base;
 
   public get timestamp(): number {
     return this._timestamp;
@@ -109,15 +65,15 @@ export class Game {
     return this._events;
   }
 
-  constructor() {
+  constructor(level: LevelOptions) {
+    this._cannons = level.cannons.map((options) => new Cannon(options));
+    this._base = new Base(
+      level.baseModules?.map((rectangle) => new BaseModule(rectangle)) ?? []
+    );
     this._enemyProjectileSpawner = new EnemyProjectileSpawner(
       this.base.modules.map(({ rectangle }) => rectangle),
-      1,
-      {
-        length: 100,
-        speed: 100,
-        color: 'rgb(0, 255, 0)'
-      },
+      level.enemyProjectile.frequency,
+      level.enemyProjectile.options,
     );
   }
 

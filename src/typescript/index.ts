@@ -3,12 +3,13 @@ import { GameRenderer } from './render/game-renderer';
 import { Tick } from './tick';
 import { initDomEvents } from './dom/dom-events';
 import { getHtmlElement } from './dom/get-html-element';
+import { levelDefault } from './level/const/level-default';
 
 document.addEventListener('DOMContentLoaded', (event) => {
   const container = getHtmlElement<HTMLDivElement>('container');
   const fullscreenButton = getHtmlElement<HTMLButtonElement>('fullscreen-button');
 
-  const game = new Game();
+  const game = new Game(levelDefault);
   const gameRenderer = new GameRenderer({
     effects: getHtmlElement<HTMLCanvasElement>('layer-effects'),
     mainStatic: getHtmlElement<HTMLCanvasElement>('layer-main-static'),
