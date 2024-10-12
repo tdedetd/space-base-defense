@@ -6,7 +6,7 @@ import { TimestampToNumberFunction } from './models/timestamp-to-number-function
 
 export abstract class SceneObject {
   protected _color: string;
-  protected _direction: PolarDirection
+  protected _direction: PolarDirection;
   protected _origin: Point;
   protected _speed: number | TimestampToNumberFunction;
   protected _position: PointPolar;

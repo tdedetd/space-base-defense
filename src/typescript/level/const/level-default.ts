@@ -54,4 +54,11 @@ export const levelDefault: LevelOptions = {
       color: 'rgb(0, 255, 0)'
     },
   },
+  staticShields: [
+    {
+      position: { x: 500, y: -20 },
+      xRadius: 500,
+      yRadius: 220,
+    }
+  ],
 };

@@ -13,6 +13,7 @@ export class GameEvents {
   }
 
   public listen<K extends keyof GameEventParams>(event: K, callback: GameEventCallback<GameEventParams[K]>): void {
+
     // TODO: избавиться от этого позора
     const listeners = this.listeners[event] as any;
     this.listeners[event] = listeners ? [...listeners, callback] : [callback];

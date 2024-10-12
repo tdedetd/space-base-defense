@@ -6,7 +6,7 @@
   "scripts": {
     "start": "webpack serve --config webpack.dev.js",
     "build": "npm run lint && npm run build:only",
-    "build:only": "NODE_ENV=production webpack --config webpack.prod.js",
+    "build:only": "cross-env NODE_ENV=production webpack --config webpack.prod.js",
     "lint": "npx eslint -c .eslintrc.js --ext .ts,.js src/",
     "lint:fix": "npx eslint --fix -c .eslintrc.js --ext .ts,.js src/"
   },
@@ -17,6 +17,7 @@
     "@typescript-eslint/parser": "^6.21.0",
     "clean-webpack-plugin": "^4.0.0",
     "copy-webpack-plugin": "^12.0.2",
+    "cross-env": "^7.0.3",
     "css-loader": "^7.1.1",
     "css-minimizer-webpack-plugin": "^6.0.0",
     "eslint": "^8.57.0",

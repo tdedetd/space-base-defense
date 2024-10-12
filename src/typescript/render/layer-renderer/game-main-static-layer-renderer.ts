@@ -14,7 +14,8 @@ export class GameMainStaticLayerRenderer extends LayerRenderer {
 
   public render(): void {
     this.clearContext();
-    this.renderBaseModules(this.game.baseModules);
+    this.renderBaseModules(this.game.base.modules);
+    this.renderStaticShield();
   }
 
   private renderBaseModules(baseModules: BaseModule[]): void {
@@ -23,6 +24,25 @@ export class GameMainStaticLayerRenderer extends LayerRenderer {
       ctx.strokeStyle = '#d19c13';
       const rectanglePx = this.measures.convertRectangleToPx(module.rectangle);
       ctx.strokeRect(rectanglePx.x, rectanglePx.y, rectanglePx.width, rectanglePx.height);
+    });
+  }
+
+  private renderStaticShield(): void {
+    const ctx = this.ctx;
+    ctx.strokeStyle = '#fff';
+
+    this.game.staticShields.forEach((shield) => {
+      const positionPx = this.measures.convertPointToPx(shield.position);
+      this.ctx.beginPath();
+      this.ctx.ellipse(
+        positionPx.x,
+        positionPx.y,
+        this.measures.convertSizeToPx(shield.xRadius),
+        this.measures.convertSizeToPx(shield.yRadius),
+        0, 0, Math.PI * 2
+      );
+      this.ctx.closePath();
+      this.ctx.stroke();
     });
   }
 }
