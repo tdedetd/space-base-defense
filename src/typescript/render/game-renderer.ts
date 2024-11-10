@@ -17,6 +17,8 @@ export class GameRenderer {
 
   private _pause = false;
   private measures = new Measures(3 / 4, 1000);
+
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   private clearInterval = new GameInterval(() => {}, 1000000);
 
   private activeScenePosition: Point | null = null;

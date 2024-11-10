@@ -8,6 +8,7 @@ import { LevelOptions } from './level/models/level-options.interface';
 import { Rectangle } from './models/geometry/rectangle.interface';
 import { BlasterProjectile } from './projectile/blaster-projectile';
 import { Projectile } from './projectile/projectile';
+import { StaticShield } from './shield/static-shield';
 import { isPointInsideIntervals } from './utils/is-point-inside-intervals';
 
 export class Game {
@@ -20,6 +21,7 @@ export class Game {
   private _cannons: Cannon[];
   private _cannonsAreActive = false;
   private _base: Base;
+  private _staticShields: StaticShield[];
 
   public get timestamp(): number {
     return this._timestamp;
@@ -49,8 +51,8 @@ export class Game {
     return this._base;
   }
 
-  public get baseModules(): BaseModule[] {
-    return this.base.modules;
+  public get staticShields(): StaticShield[] {
+    return this._staticShields;
   }
 
   public get currentProjectilesSpawnFrequency(): number {
@@ -75,6 +77,7 @@ export class Game {
       level.enemyProjectile.frequency,
       level.enemyProjectile.options,
     );
+    this._staticShields = level.staticShields?.map((options) => new StaticShield(options)) ?? [];
   }
 
   private static getBlasterProjectilesInside(
@@ -136,6 +139,7 @@ export class Game {
     this.requestSpawEnemyProjectiles(msDiff);
 
     this.checkProjectilesIntersections();
+    this.checkStaticShieldsIntersections();
     this.checkBaseModuleIntersections();
 
     if (this._cannonsAreActive) {
@@ -161,14 +165,31 @@ export class Game {
     this._allyProjectiles = this._allyProjectiles
       .filter((projectile) => !allyProjectilesToClear.includes(projectile));
 
-    this._enemyProjectiles = this._enemyProjectiles
-      .filter((projectile) => !enemyProjectilesToClear.includes(projectile));
+    this.removeFromEnemyProjectiles(enemyProjectilesToClear);
 
     this.statistics.addHits(allyProjectilesToClear.length);
 
     if (allyProjectilesToClear.length || enemyProjectilesToClear.length) {
       this.events.dispatch('blasterProjectilesIntersect', {
         projectiles: [...allyProjectilesToClear, ...enemyProjectilesToClear],
+      });
+    }
+  }
+
+  private checkStaticShieldsIntersections(): void {
+    const enemyProjectilesToClear: BlasterProjectile[] = [];
+
+    this.staticShields.forEach((shield) => {
+      enemyProjectilesToClear.push(
+        ...this.enemyProjectiles.filter((projectile) => shield.getIntersectionPoints(projectile.getLine()).length > 0)
+      );
+    });
+
+    this.removeFromEnemyProjectiles(enemyProjectilesToClear);
+
+    if (enemyProjectilesToClear.length) {
+      this.events.dispatch('blasterProjectilesIntersect', {
+        projectiles: enemyProjectilesToClear,
       });
     }
   }
@@ -202,6 +223,11 @@ export class Game {
   private moveProjectiles(msDiff: number): void {
     Game.moveProjectilesGroup(this._allyProjectiles, msDiff);
     Game.moveProjectilesGroup(this._enemyProjectiles, msDiff);
+  }
+
+  private removeFromEnemyProjectiles(projectiles: BlasterProjectile[]): void {
+    this._enemyProjectiles = this._enemyProjectiles
+      .filter((projectile) => !projectiles.includes(projectile));
   }
 
   private requestSpawEnemyProjectiles(msDiff: number): void {

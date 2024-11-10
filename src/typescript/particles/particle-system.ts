@@ -23,7 +23,9 @@ export class ParticleSystem {
           : getRandomPointBetween(...options.spawnPosition),
         position: {
           radians: options.angle + (
-            typeof options.angleAmplitude === 'undefined' ? 0 : Random.interval(-options.angleAmplitude, options.angleAmplitude)
+            typeof options.angleAmplitude === 'undefined'
+              ? 0
+              : Random.interval(-options.angleAmplitude, options.angleAmplitude)
           ),
           radius: 0,
         },
