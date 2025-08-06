@@ -1,7 +1,0 @@
-@function if($condition, $then, $else) {
-  @if $condition {
-    @return $then;
-  } @else {
-    @return $else;
-  }
-}
