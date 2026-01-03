@@ -20,7 +20,6 @@ export function initDomEvents(domEventsOptions: DomEventsOptions): void {
 function containerOnMousedown({ container, game, gameRenderer }: DomEventsOptions): void {
   container.addEventListener('mousedown', (event) => {
     if (event.button === 0 && !gameRenderer.pause) {
-      game.fire();
       game.activateCannons();
     }
   });

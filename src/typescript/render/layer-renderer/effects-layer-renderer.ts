@@ -20,7 +20,7 @@ export class EffectsLayerRenderer extends LayerRenderer {
 
         this.particleSystem.emit({
           angle: projectile.position.radians + (projectile.direction === 'fromCenter' ? 0 : Math.PI),
-          angleAmplitude: toRadians(25),
+          angleAmplitude: toRadians(15),
           color: projectile.color,
           count: Math.round(lineLength / 10),
           lifetime,

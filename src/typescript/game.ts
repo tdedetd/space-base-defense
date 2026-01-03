@@ -115,7 +115,22 @@ export class Game {
     this._cannonsAreActive = false;
   }
 
-  public fire(): void {
+  public update(msDiff: number): void {
+    this._timestamp += msDiff;
+
+    this.moveProjectiles(msDiff);
+    this.requestSpawEnemyProjectiles(msDiff);
+
+    this.checkProjectilesIntersections();
+    this.checkStaticShieldsIntersections();
+    this.checkBaseModuleIntersections();
+
+    if (this._cannonsAreActive) {
+      this.fire();
+    }
+  }
+
+  private fire(): void {
     const newProjectiles = this._cannons.reduce<BlasterProjectile[]>((acc, cannon) => {
       try {
         return [...acc, cannon.tryToFire(this.timestamp)];
@@ -130,21 +145,6 @@ export class Game {
 
     this._allyProjectiles.push(...newProjectiles);
     this.statistics.addShots(newProjectiles.length ? 1 : 0);
-  }
-
-  public update(msDiff: number): void {
-    this._timestamp += msDiff;
-
-    this.moveProjectiles(msDiff);
-    this.requestSpawEnemyProjectiles(msDiff);
-
-    this.checkProjectilesIntersections();
-    this.checkStaticShieldsIntersections();
-    this.checkBaseModuleIntersections();
-
-    if (this._cannonsAreActive) {
-      this.fire();
-    }
   }
 
   private checkProjectilesIntersections(): void {
