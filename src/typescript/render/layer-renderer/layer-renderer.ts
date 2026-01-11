@@ -13,10 +13,7 @@ export abstract class LayerRenderer {
     this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public render(options: RenderLayerOptions): void {
-    throw new Error('method is not implemented');
-  }
+  public abstract render(options: RenderLayerOptions): void;
 
   public updateCanvasSize(width: number, height: number): void {
     this.ctx.canvas.width = width;
